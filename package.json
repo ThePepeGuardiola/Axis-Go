@@ -18,13 +18,8 @@
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
-<<<<<<< Updated upstream
-    "expo": "~52.0.25",
-    "expo-blur": "~14.0.2",
-=======
     "expo": "^52.0.28",
     "expo-blur": "~14.0.3",
->>>>>>> Stashed changes
     "expo-constants": "~17.0.4",
     "expo-font": "~13.0.3",
     "expo-haptics": "~14.0.1",
