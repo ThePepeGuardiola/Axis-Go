@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -7,24 +8,38 @@ import IconInput from '@/components/IconInput';
 
 const data = [
     { label: '+1 (US)', value: 'Estados Unidos' },
-    { label: '+1', value: 'Canadá' },
-    { label: '+52', value: 'México' },
-    { label: '+55', value: 'Brasil' },
-    { label: '+54', value: 'Argentina' },
-    { label: '+56', value: 'Chile' },
-    { label: '+57', value: 'Colombia' },
-    { label: '+34', value: 'España' },
-    { label: '+33', value: 'Francia' },
-    { label: '+1', value: 'República Dominicana' },
+    { label: '+1 (CA)', value: 'Canadá' },
+    { label: '+52 (MX)', value: 'México' },
+    { label: '+55 (BR)', value: 'Brasil' },
+    { label: '+54 (AR)', value: 'Argentina' },
+    { label: '+56 (CL)', value: 'Chile' },
+    { label: '+57 (CO)', value: 'Colombia' },
+    { label: '+34 (ESP)', value: 'España' },
+    { label: '+33 (FR)', value: 'Francia' },
+    { label: '+1 (RD)', value: 'República Dominicana' },
 ];
 
 const data_1 = [
-    { label: 'Hombre', value: 'm' },
-    { label: 'Mujer', value: 'f' },
+    { label: 'Hombre', value: true },
+    { label: 'Mujer', value: false },
 ];
 
 export default function PerfilUsuario() {
     const [value, setValue] = useState(null);
+    const [profileImage, setProfileImage] = useState(require('../../assets/images/user-icon.png'));
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setProfileImage({ uri: result.assets[0].uri });
+        }
+    };
 
     //Botones
 
@@ -49,7 +64,7 @@ export default function PerfilUsuario() {
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 10}}>
+            <SafeAreaView style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 5}}>
                 <View style={{flex: 0, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
                     <Pressable style={{display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer'}}>
                         <Image source={require('../../assets/icons/arrow.png')} />
@@ -58,8 +73,9 @@ export default function PerfilUsuario() {
                 </View>
 
                 <View style={{flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                    <Image style={{width: 150, height: 150}} source={require('../../assets/images/user-icon.png')}/>
-                    {/* <Image style={{backgroundColor: '#900020', borderRadius: 13, position: 'absolute', top: 155 , left: 220, width: 35, height: 35}} source={require('../../assets/icons/pencil.png')}/> */}
+                    <Pressable onPress={pickImage}>
+                        <Image style={{width: 150, height: 150, borderRadius: '100%'}} source={profileImage}/>
+                    </Pressable>
                 </View>
 
                 <View style={{flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingHorizontal: 20}}>
@@ -103,13 +119,13 @@ export default function PerfilUsuario() {
                                 setValue(item.value);
                                 }}
                                 renderLeftIcon={() => (
-                                <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+                                <AntDesign style={styles.icon} color="black" name="enviromento" size={20} />
                                 )}
                                 renderItem={renderItem}
                             />
                         </View>
 
-                        <View  style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'center', marginVertical: 5, width: '55%'}}>
+                        <View  style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '55%'}}>
                             <IconInput
                                 iconName='phone'
                                 placeholder='Número de tel.'
@@ -137,12 +153,12 @@ export default function PerfilUsuario() {
                         setValue(item.value);
                         }}
                         renderLeftIcon={() => (
-                        <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
+                        <AntDesign style={styles.icon} color="black" name={value ? "man" : "woman"} size={18} />
                         )}
                         renderItem={renderItem}
                     />
 
-                    <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginVertical: 5, flexWrap: 'wrap'}}>
+                    <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginVertical: 10, flexWrap: 'wrap'}}>
                         <Pressable
                             style={isPressed1 ? styles.buttonPressed : styles.button}
                             onPressIn={() => setIsPressed1(true)}
@@ -172,7 +188,7 @@ export default function PerfilUsuario() {
 
 const styles = StyleSheet.create({
     dropdown: {
-        height: 50,
+        height: 55,
         width: '100%',
         borderWidth: 1.5,
         borderColor: '#bebebe',
@@ -181,17 +197,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     dropdown_1: {
-        height: 50,
+        height: 55,
         width: '100%',
         backgroundColor: 'white',
         borderRadius: 12,
-        paddingHorizontal: 20,
         marginVertical: 5,
+        paddingHorizontal: 20,
         borderWidth: 1.5,
         borderColor: '#bebebe',
     },
     icon: {
-        marginRight: 5,
+        marginRight: 10,
     },
     item: {
         padding: 17,

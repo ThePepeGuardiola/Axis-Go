@@ -8,7 +8,7 @@ interface IconInputProps extends TextInputProps {
     iconColor?: string;
 }
 
-const IconInput: React.FC<IconInputProps> = ({ iconName, iconSize = 15, iconColor = 'black', ...props }) => {
+const IconInput: React.FC<IconInputProps> = ({ iconName, iconSize = 20, iconColor = 'black', ...props }) => {
     const [isFocused, setIsFocused] = useState(false);
     
     return (
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 15,
         paddingHorizontal: 15,
-        marginVertical: 5,
+        marginVertical: 8,
         width: '100%',
     },
     icon: {
