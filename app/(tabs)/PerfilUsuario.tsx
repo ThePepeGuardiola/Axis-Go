@@ -65,20 +65,20 @@ export default function PerfilUsuario() {
     return (
         <SafeAreaProvider>
             <SafeAreaView style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 5}}>
-                <View style={{flex: 0, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+                <View style={{flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
                     <Pressable style={{display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer'}}>
                         <Image source={require('../../assets/icons/arrow.png')} />
                         <Text style={{fontSize: 18, fontWeight: 700}}>Perfil</Text>
                     </Pressable>
                 </View>
 
-                <View style={{flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <View style={{flex: 4, display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center'}}>
                     <Pressable onPress={pickImage}>
-                        <Image style={{width: 150, height: 150, borderRadius: '100%'}} source={profileImage}/>
+                        <Image style={{width: 150, height: 150, borderRadius: 100}} source={profileImage}/>
                     </Pressable>
                 </View>
 
-                <View style={{flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingHorizontal: 20}}>
+                <View style={{flex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingHorizontal: 20}}>
                     <IconInput
                         iconName="user"
                         placeholder="Usuario"

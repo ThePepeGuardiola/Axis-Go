@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: '#bebebe',
         borderRadius: 10,
-        paddingVertical: 15,
+        paddingVertical: 5,
         paddingHorizontal: 15,
         marginVertical: 8,
         width: '100%',
