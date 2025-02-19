@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -25,7 +25,8 @@ const data_1 = [
 ];
 
 export default function PerfilUsuario() {
-    const [value, setValue] = useState(null);
+    const [value_1, setValue_1] = useState(null);
+    const [value_2, setValue_2] = useState(null);
     const [profileImage, setProfileImage] = useState(require('../../assets/images/user-icon.png'));
 
     const pickImage = async () => {
@@ -50,7 +51,7 @@ export default function PerfilUsuario() {
         return (
             <View style={styles.item}>
             <Text style={styles.textItem}>{item.label}</Text>
-            {item.value === value && (
+            {item.value === value_1 && (
                 <AntDesign
                 style={styles.icon}
                 color="black"
@@ -64,7 +65,7 @@ export default function PerfilUsuario() {
 
     return (
         <SafeAreaProvider>
-            <SafeAreaView style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 5}}>
+            <SafeAreaView style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', ...Platform.select({ web: {paddingHorizontal: 5}})}}>
                 <View style={{flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
                     <Pressable style={{display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer'}}>
                         <Image source={require('../../assets/icons/arrow.png')} />
@@ -72,7 +73,7 @@ export default function PerfilUsuario() {
                     </Pressable>
                 </View>
 
-                <View style={{flex: 4, display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center'}}>
+                <View style={{flex: 4, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                     <Pressable onPress={pickImage}>
                         <Image style={{width: 150, height: 150, borderRadius: 100}} source={profileImage}/>
                     </Pressable>
@@ -83,6 +84,7 @@ export default function PerfilUsuario() {
                         iconName="user"
                         placeholder="Usuario"
                         verticalAlign='middle'
+                        multiline={false}
                     />
 
                     <IconInput
@@ -90,6 +92,7 @@ export default function PerfilUsuario() {
                         placeholder="Fecha de nacimiento"
                         keyboardType="numeric"
                         verticalAlign='middle'
+                        multiline={false}
                     />
 
                     <IconInput
@@ -97,10 +100,11 @@ export default function PerfilUsuario() {
                         placeholder="Correo electrónico"
                         keyboardType="email-address"
                         verticalAlign='middle'
+                        multiline={false}
                     />
 
                     <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginVertical: 5, flexWrap: 'wrap'}}>
-                        <View style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'center', marginVertical: 5, marginRight: 5, width: '40%'}}>
+                        <View style={{display: 'flex', alignItems: 'flex-start', justifyContent: 'center', marginVertical: 5, marginRight: 5, width: '45%'}}>
                             <Dropdown
                                 style={styles.dropdown}
                                 placeholderStyle={styles.placeholderStyle}
@@ -114,9 +118,9 @@ export default function PerfilUsuario() {
                                 valueField="value"
                                 placeholder=""
                                 searchPlaceholder="Search..."
-                                value={value}
+                                value={value_1}
                                 onChange={item => {
-                                setValue(item.value);
+                                setValue_1(item.value);
                                 }}
                                 renderLeftIcon={() => (
                                 <AntDesign style={styles.icon} color="black" name="enviromento" size={20} />
@@ -125,12 +129,13 @@ export default function PerfilUsuario() {
                             />
                         </View>
 
-                        <View  style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '55%'}}>
+                        <View  style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '50%'}}>
                             <IconInput
                                 iconName='phone'
                                 placeholder='Número de tel.'
                                 keyboardType='numeric'
                                 verticalAlign='middle'
+                                multiline={false}
                             />
                         </View>
                     </View>
@@ -148,12 +153,12 @@ export default function PerfilUsuario() {
                         valueField="value"
                         placeholder="Género"
                         searchPlaceholder="Search..."
-                        value={value}
+                        value={value_2}
                         onChange={item => {
-                        setValue(item.value);
+                        setValue_2(item.value);
                         }}
                         renderLeftIcon={() => (
-                        <AntDesign style={styles.icon} color="black" name={value ? "man" : "woman"} size={18} />
+                        <AntDesign style={styles.icon} color="black" name={value_2 ? "man" : "woman"} size={18} />
                         )}
                         renderItem={renderItem}
                     />
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
         borderColor: '#bebebe',
         backgroundColor: 'white',
         borderRadius: 12,
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
     },
     dropdown_1: {
         height: 55,
@@ -202,7 +207,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 12,
         marginVertical: 5,
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         borderWidth: 1.5,
         borderColor: '#bebebe',
     },

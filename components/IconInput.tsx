@@ -1,4 +1,4 @@
-import { View, TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { View, TextInput, StyleSheet, TextInputProps, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import React, { useState } from 'react';
 
@@ -8,7 +8,7 @@ interface IconInputProps extends TextInputProps {
     iconColor?: string;
 }
 
-const IconInput: React.FC<IconInputProps> = ({ iconName, iconSize = 20, iconColor = 'black', ...props }) => {
+const IconInput: React.FC<IconInputProps> = ({ iconName, iconSize = 20, iconColor = 'black', multiline=false, ...props }) => {
     const [isFocused, setIsFocused] = useState(false);
     
     return (
@@ -31,9 +31,21 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderColor: '#bebebe',
         borderRadius: 10,
-        paddingVertical: 5,
+        ...Platform.select({
+            ios: {
+                paddingVertical: 5,
+            },
+            android: {
+                paddingVertical: 5,
+            },
+            web: {
+                paddingVertical: 15,
+            }
+        }),
         paddingHorizontal: 15,
         marginVertical: 8,
+        height: 55,
+        maxHeight: 55,
         width: '100%',
     },
     icon: {
