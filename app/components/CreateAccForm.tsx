@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -153,7 +154,7 @@ const FormSubmitButton: React.FC<{ title: string; onPress: () => void }> = ({
   title,
   onPress,
 }) => (
-  <TouchableOpacity style={buttonStyles.button} onPress={onPress}>
+  <TouchableOpacity style={buttonStyles.button} onPress={() => router.push('/home')}>
     <Text style={buttonStyles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );

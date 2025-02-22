@@ -6,12 +6,7 @@ export default function Layout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    if (pathname === "/") {
-      router.replace("/singup"); // Redirect without showing blank screen
-    }
-  }, [pathname]);
-
+  
   return (
     <>
       <StatusBar hidden /> 

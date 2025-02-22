@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, View, StyleSheet, Text, TextInput, Image, ImageBackground } from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import Background from '../../components/Background';
+import { router } from 'expo-router';
 
 export default function Home() {
 
@@ -46,11 +47,7 @@ export default function Home() {
 
                     <Pressable
                         style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}
-                        onPressIn={() => OnpressOut(true)}
-                        onPressOut={() => OnpressOut(false)}
-                        hitSlop={5}
-                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
-                    >
+                        onPress={() => router.push('/home')}>
                         <Text style={onPressIn ? styles.new : styles.textRed}>Olvidaste tu contraseña?</Text>
                     </Pressable>
                 </View>
@@ -66,15 +63,13 @@ export default function Home() {
                         onPressOut={() => OnpressOut_1(false)}
                         hitSlop={20}
                         pressRetentionOffset={{top: 20, left: 20, bottom: 20, right: 20}}
+                        onPress={() => router.push('/home')}
                     >
                         <Text style={{color: 'white', fontSize: 22, fontWeight: '700'}}>Iniciar</Text>
                     </Pressable>
 
                     <Pressable
-                        onPressIn={() => OnpressOut_2(true)}
-                        onPressOut={() => OnpressOut_2(false)}
-                        hitSlop={5}
-                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
+                        onPress={() => router.push('/singup')}
                     >
                         <Text style={onPressIn_2 ? styles.textRed : styles.new}>Crear nueva cuenta</Text>
                     </Pressable>
