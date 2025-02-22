@@ -20,6 +20,7 @@ export default function App() {
             <Image
                       source={require('@/assets/images/back-image.png')}
                       style={styles.backimage}
+<<<<<<< HEAD
                     />
 =======
 >>>>>>> parent of 1e02cac (Dashboard completado)
@@ -36,6 +37,8 @@ export default function App() {
             <Image
                       source={require('@/assets/images/back-image.png')}
                       style={styles.backimage}
+=======
+>>>>>>> parent of f29a6c2 (Merge pull request #15 from ThePepeGuardiola/2-axisg-2-crear-login)
                     />
 
             {/* TEXT */}
