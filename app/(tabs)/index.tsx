@@ -1,8 +1,11 @@
+import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, Image, Pressable, Text } from "react-native";
 
 
 export default function App() {
+    const router = useRouter();
+
     return(
         <View style={styles.container}>
             
@@ -33,13 +36,12 @@ export default function App() {
 
 
         <View style={styles.logbuttons}>
-            <Pressable style={styles.button}>
+            <Pressable style={styles.button} onPress={() => router.push('/Login')}>
                     <Text style={styles.logtext}>Login</Text>
             </Pressable>
 
-
-            <Pressable style={styles.button2}>
-                    <Text style={styles.logtext2}>Register</Text>
+            <Pressable style={styles.button2} onPress={() => router.push('/singup')}>
+                <Text style={styles.logtext2}>Register</Text>
             </Pressable>
         </View>
             
