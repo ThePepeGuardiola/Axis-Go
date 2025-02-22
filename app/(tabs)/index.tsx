@@ -11,16 +11,18 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <StatusBar style="auto" />
 
-      {/* IMAGES */}
-      <Image
-        source={require('@/assets/images/welcome-image.png')}
-        style={styles.mainimage}
-      />
+            {/* IMAGES */}
 
-      <Image
-        source={require('@/assets/images/back-image.png')}
-        style={styles.backimage}
-      />
+
+            <Image
+                      source={require('@/assets/images/welcome-image.png')}
+                      style={styles.mainimage}
+                    />
+
+            <Image
+                      source={require('@/assets/images/back-image.png')}
+                      style={styles.backimage}
+                    />
 
       {/* TEXT */}
       <Text style={styles.mtext}>
@@ -31,21 +33,23 @@ export default function LoginScreen() {
         y destino principal.
       </Text>
 
-      {/* BUTTONS */}
-      <View style={styles.logbuttons}>
-        <Pressable
-          style={styles.button}
-          onPress={() => router.push("/home")} // Navigate to homep.tsx
-        >
-          <Text style={styles.logtext}>Login</Text>
-        </Pressable>
+        {/* BUTTONS */}
 
-        <Pressable style={styles.button2}>
-          <Text style={styles.logtext2}>Register</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
+
+        <View style={styles.logbuttons}>
+               <Pressable style={styles.button}>
+                       <Text style={styles.logtext}>Login</Text>
+               </Pressable>
+
+
+               <Pressable style={styles.button2}>
+                       <Text style={styles.logtext2}>Register</Text>
+               </Pressable>
+        </View>
+            
+
+     </View>
+ );
 }
 
 const styles = StyleSheet.create({
