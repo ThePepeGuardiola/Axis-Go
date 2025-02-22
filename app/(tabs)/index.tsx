@@ -11,6 +11,9 @@ export default function App() {
             {/* IMAGES */}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 1e02cac (Dashboard completado)
 
             <Image
                       source={require('@/assets/images/welcome-image.png')}
@@ -20,6 +23,7 @@ export default function App() {
             <Image
                       source={require('@/assets/images/back-image.png')}
                       style={styles.backimage}
+<<<<<<< HEAD
 <<<<<<< HEAD
                     />
 =======
@@ -41,6 +45,10 @@ export default function App() {
 >>>>>>> parent of f29a6c2 (Merge pull request #15 from ThePepeGuardiola/2-axisg-2-crear-login)
                     />
 
+=======
+                    />
+
+>>>>>>> parent of 1e02cac (Dashboard completado)
             {/* TEXT */}
 
 
@@ -51,6 +59,9 @@ export default function App() {
 
         {/* BUTTONS */}
 
+<<<<<<< HEAD
+>>>>>>> parent of 1e02cac (Dashboard completado)
+=======
 >>>>>>> parent of 1e02cac (Dashboard completado)
 
         <View style={styles.logbuttons}>
