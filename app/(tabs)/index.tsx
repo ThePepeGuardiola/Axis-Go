@@ -35,7 +35,7 @@ export default function LoginScreen() {
       <View style={styles.logbuttons}>
         <Pressable
           style={styles.button}
-          onPress={() => router.push("/homep")} // Navigate to homep.tsx
+          onPress={() => router.push("/home")} // Navigate to homep.tsx
         >
           <Text style={styles.logtext}>Login</Text>
         </Pressable>
