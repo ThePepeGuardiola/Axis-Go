@@ -10,17 +10,45 @@ export default function App() {
 
             {/* IMAGES */}
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 1e02cac (Dashboard completado)
 
             <Image
-                    source={require('@/assets/images/welcome-image.png')}
-                    style={styles.mainimage}
+                      source={require('@/assets/images/welcome-image.png')}
+                      style={styles.mainimage}
                     />
 
             <Image
-                    source={require('@/assets/images/back-image.png')}
-                    style={styles.backimage}
+                      source={require('@/assets/images/back-image.png')}
+                      style={styles.backimage}
+<<<<<<< HEAD
+<<<<<<< HEAD
+                    />
+=======
+>>>>>>> parent of 1e02cac (Dashboard completado)
+
+            <Image
+                      source={require('@/assets/images/welcome-image.png')}
+                      style={styles.mainimage}
                     />
 
+<<<<<<< HEAD
+        {/* BUTTONS */}
+
+=======
+            <Image
+                      source={require('@/assets/images/back-image.png')}
+                      style={styles.backimage}
+=======
+>>>>>>> parent of f29a6c2 (Merge pull request #15 from ThePepeGuardiola/2-axisg-2-crear-login)
+                    />
+
+=======
+                    />
+
+>>>>>>> parent of 1e02cac (Dashboard completado)
             {/* TEXT */}
 
 
@@ -31,21 +59,25 @@ export default function App() {
 
         {/* BUTTONS */}
 
+<<<<<<< HEAD
+>>>>>>> parent of 1e02cac (Dashboard completado)
+=======
+>>>>>>> parent of 1e02cac (Dashboard completado)
 
         <View style={styles.logbuttons}>
-            <Pressable style={styles.button}>
-                    <Text style={styles.logtext}>Login</Text>
-            </Pressable>
+               <Pressable style={styles.button}>
+                       <Text style={styles.logtext}>Login</Text>
+               </Pressable>
 
 
-            <Pressable style={styles.button2}>
-                    <Text style={styles.logtext2}>Register</Text>
-            </Pressable>
+               <Pressable style={styles.button2}>
+                       <Text style={styles.logtext2}>Register</Text>
+               </Pressable>
         </View>
             
 
-    </View>
-);
+     </View>
+ );
 }
 
 const styles = StyleSheet.create({
