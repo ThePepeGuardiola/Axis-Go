@@ -6,16 +6,20 @@ export default function Layout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    if (pathname === "/") {
-      router.replace("/singup"); // Redirect without showing blank screen
-    }
-  }, [pathname]);
+  redirectIfRootPath(pathname, router);
 
   return (
     <>
-      <StatusBar hidden /> 
+      <StatusBar hidden />
       <Stack screenOptions={{ headerShown: false }} />
     </>
   );
 }
+function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRouter>) {
+  useEffect(() => {
+    if (pathname === "/") {
+      router.replace("/Login");
+    }
+  }, [pathname]);
+}
+
