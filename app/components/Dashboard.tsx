@@ -74,7 +74,7 @@ export const WeatherSection = () => (
             </Svg>
        Santo Domingo, DN
     </Text>
-    <Image source={require('/Users/wilmerduranrodriguez/Desktop/Web Dev/eduweb-master/Axis-Go/assets/images/sun.png')} style={{ position: 'absolute', left: '85%' }} />
+    <Image source={require('../../assets/images/sun.png')} style={{ position: 'absolute', left: '85%' }} />
   </View>
 );
 
