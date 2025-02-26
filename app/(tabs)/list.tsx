@@ -11,6 +11,8 @@ const DATA = [
     items1: ["Jumbo, Av. Luperon"],
     items2: ["1.7 Km"],
   },
+
+  
   {
     id: "2",
     category: "Gym",

@@ -4,6 +4,8 @@ import { StyleSheet, View, Image, Pressable, Text } from "react-native";
 
 export default function App() {
     return(
+
+        
         <View style={styles.container}>
             
             <StatusBar style="auto"/>
