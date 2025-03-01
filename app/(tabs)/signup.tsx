@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import CreateAccForm from "./components/CreateAccForm";
+import CreateAccForm from "../components/CreateAccForm";
 import Svg, { Circle, ClipPath, Defs, G, Rect } from "react-native-svg";
 
 const MySvgComponent = () => (
@@ -51,8 +51,8 @@ const MySvgComponent = () => (
 export default function App() {
   return (
     <View style={styles.container}>
-      <MySvgComponent />
-      <CreateAccForm />
+        <MySvgComponent />
+        <CreateAccForm />
       <StatusBar style="auto" />
     </View>
   );

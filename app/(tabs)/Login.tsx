@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, View, StyleSheet, Text, TextInput, Image, ImageBackground } from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import Background from '../../components/Background';
+import { router } from 'expo-router';
 
 export default function Home() {
 
@@ -62,6 +63,7 @@ export default function Home() {
                 <View style={{flex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', width: '100%'}} >
                     <Pressable
                         style={onPressIn_1 ? styles.buttonActive : styles.button}
+                        onPress={() => router.push('/home')}
                         onPressIn={() => OnpressOut_1(true)}
                         onPressOut={() => OnpressOut_1(false)}
                         hitSlop={20}
@@ -71,12 +73,15 @@ export default function Home() {
                     </Pressable>
 
                     <Pressable
+                        onPress={() => router.push('/signup')}
                         onPressIn={() => OnpressOut_2(true)}
                         onPressOut={() => OnpressOut_2(false)}
                         hitSlop={5}
                         pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
                     >
-                        <Text style={onPressIn_2 ? styles.textRed : styles.new}>Crear nueva cuenta</Text>
+                        <Text style={onPressIn_2 ? styles.textRed : styles.new}>
+                            Crear nueva cuenta
+                        </Text>
                     </Pressable>
 
                     <Pressable
