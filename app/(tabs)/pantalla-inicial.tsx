@@ -1,6 +1,6 @@
-import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, Image, Pressable, Text } from "react-native";
+
 
 export default function App() {
     return(
@@ -14,13 +14,14 @@ export default function App() {
 
 
             <Image
-                source={require('@/assets/images/welcome-image.png')} 
-                style={styles.mainimage} 
-                />
+                      source={require('@/assets/images/welcome-image.png')}
+                      style={styles.mainimage}
+                    />
+
             <Image
-                source={require('@/assets/images/back-image.png')}
-                style={styles.backimage}
-                />
+                      source={require('@/assets/images/back-image.png')}
+                      style={styles.backimage}
+                    />
 
             {/* TEXT */}
 
@@ -34,19 +35,19 @@ export default function App() {
 
 
         <View style={styles.logbuttons}>
-            <Pressable style={styles.button}>
-                    <Text style={styles.logtext}>Login</Text>
-            </Pressable>
+               <Pressable style={styles.button}>
+                       <Text style={styles.logtext}>Login</Text>
+               </Pressable>
 
 
-            <Pressable style={styles.button2}>
-                    <Text style={styles.logtext2}>Register</Text>
-            </Pressable>
+               <Pressable style={styles.button2}>
+                       <Text style={styles.logtext2}>Register</Text>
+               </Pressable>
         </View>
             
 
-    </View>
-);
+     </View>
+ );
 }
 
 const styles = StyleSheet.create({
