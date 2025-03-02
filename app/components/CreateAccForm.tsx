@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -153,7 +154,7 @@ const FormSubmitButton: React.FC<{ title: string; onPress: () => void }> = ({
   title,
   onPress,
 }) => (
-  <TouchableOpacity style={buttonStyles.button} onPress={onPress}>
+  <TouchableOpacity style={buttonStyles.button} onPress={() => router.replace("/Login")}>
     <Text style={buttonStyles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
@@ -171,7 +172,9 @@ const SignupForm = () => (
 // Componente de subtexto
 const Subtext = () => (
   <View style={subtextStyles.container}>
-    <Text style={subtextStyles.textBold}>Already have an account</Text>
+    <TouchableOpacity onPress={() => router.push('/Login')}>
+          <Text style={subtextStyles.textBold}>Already have an account</Text>
+    </TouchableOpacity>
     <Text style={subtextStyles.textAccent}>Or continue with</Text>
   </View>
 );
