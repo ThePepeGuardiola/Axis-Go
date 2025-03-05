@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -72,9 +73,9 @@ export const WeatherSection = () => (
                 fill="#8D8D8D"
               />
             </Svg>
-       Santo Domingo, DN
+      Santo Domingo, DN
     </Text>
-    <Image source={require('/Users/wilmerduranrodriguez/Desktop/Web Dev/eduweb-master/Axis-Go/assets/images/sun.png')} style={{ position: 'absolute', left: '85%' }} />
+    <Image source={require('../../assets/images/sun.png')} style={{ position: 'absolute', left: '85%' }} />
   </View>
 );
 
@@ -172,28 +173,28 @@ export const NavButton3: React.FC<NavButtonProps> = ({ onPress, iconPath, width,
 
 // Barra de navegación inferior
 export const BottomNav = () => (
-    <View style={styles.bottomNav}>
-      <NavButton1 onPress={() => {}} iconPath="M2.92542 14.8235L13.3723 4.37659C13.8849 3.86403..." width={29} height={29} />
-      <NavButton2 onPress={() => {}} iconPath="M13.6945 4.90534C13.9187 4.36637..." width={29} height={29} />
-      <TouchableOpacity style={styles.navItem} onPress={() => {}}>
-        <View>
-          <Image
-            source={require('../../assets/images/Search.png')}
-            style={{ position: 'relative', bottom: 30, width: 150, height: 150 }}
-          />
-        </View>
-      </TouchableOpacity>
-      <NavButton3 onPress={() => {}} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
-      <TouchableOpacity style={styles.navItem} onPress={() => {}}>
-        <View style={styles.profile}>
-          <Image
-            source={require('../../assets/images/profilep.png')}
-            style={{ width: 30, height: 30, position: 'relative' }}
-          />
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
+  <View style={styles.bottomNav}>
+    <NavButton1 onPress={() => {}} iconPath="M2.92542 14.8235L13.3723 4.37659C13.8849 3.86403..." width={29} height={29} />
+    <NavButton2 onPress={() => {}} iconPath="M13.6945 4.90534C13.9187 4.36637..." width={29} height={29} />
+    <TouchableOpacity style={styles.navItem} onPress={() => {}}>
+      <View>
+        <Image
+          source={require('../../assets/images/Search.png')}
+          style={{ position: 'relative', bottom: 30, width: 150, height: 150 }}
+        />
+      </View>
+    </TouchableOpacity>
+    <NavButton3 onPress={() => {}} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
+    <TouchableOpacity style={styles.navItem} onPress={() => router.push('/PerfilUsuario')}>
+      <View style={styles.profile}>
+        <Image
+          source={require('../../assets/images/profilep.png')}
+          style={{ width: 30, height: 30, position: 'relative' }}
+        />
+      </View>
+    </TouchableOpacity>
+  </View>
+);
 
 const styles = StyleSheet.create({
     topBar: { 

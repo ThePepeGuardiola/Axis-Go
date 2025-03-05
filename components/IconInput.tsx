@@ -54,12 +54,14 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 16,
+        width: 0,
     },
     inputFocused: {
         flex: 1,
         fontSize: 16,
         borderWidth: 0,
         borderBlockColor: 'transparent',
+        width: 0,
     },
 });
 
