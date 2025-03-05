@@ -47,7 +47,11 @@ export default function Home() {
 
                     <Pressable
                         style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}
-                        onPress={() => router.push('/home')}>
+                        onPressIn={() => OnpressOut(true)}
+                        onPressOut={() => OnpressOut(false)}
+                        hitSlop={5}
+                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
+                    >
                         <Text style={onPressIn ? styles.new : styles.textRed}>Olvidaste tu contraseña?</Text>
                     </Pressable>
                 </View>
@@ -59,19 +63,25 @@ export default function Home() {
                 <View style={{flex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', width: '100%'}} >
                     <Pressable
                         style={onPressIn_1 ? styles.buttonActive : styles.button}
+                        onPress={() => router.push('/home')}
                         onPressIn={() => OnpressOut_1(true)}
                         onPressOut={() => OnpressOut_1(false)}
                         hitSlop={20}
                         pressRetentionOffset={{top: 20, left: 20, bottom: 20, right: 20}}
-                        onPress={() => router.push('/home')}
                     >
                         <Text style={{color: 'white', fontSize: 22, fontWeight: '700'}}>Iniciar</Text>
                     </Pressable>
 
                     <Pressable
-                        onPress={() => router.push('/singup')}
+                        onPress={() => router.push('/signup')}
+                        onPressIn={() => OnpressOut_2(true)}
+                        onPressOut={() => OnpressOut_2(false)}
+                        hitSlop={5}
+                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
                     >
-                        <Text style={onPressIn_2 ? styles.textRed : styles.new}>Crear nueva cuenta</Text>
+                        <Text style={onPressIn_2 ? styles.textRed : styles.new}>
+                            Crear nueva cuenta
+                        </Text>
                     </Pressable>
 
                     <Pressable
