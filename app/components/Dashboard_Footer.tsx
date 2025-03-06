@@ -1,5 +1,6 @@
 import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { NavButton1, NavButton2, NavButton3 } from './Dashboard';
+import { router } from 'expo-router';
 
 // Barra de navegación inferior
 export const BottomNav = () => (
@@ -15,7 +16,7 @@ export const BottomNav = () => (
         </View>
       </TouchableOpacity>
       <NavButton3 onPress={() => {}} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
-      <TouchableOpacity style={styles.navItem} onPress={() => {}}>
+      <TouchableOpacity style={styles.navItem} onPress={() => {router.push('/(tabs)/PerfilUsuario')}}>
         <View style={styles.profile}>
           <Image
             source={require('../../assets/images/profilep.png')}
