@@ -19,7 +19,7 @@ const IconInput: React.FC<IconInputProps> = ({ iconName, iconSize = 20, iconColo
                 {...props}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-            />
+            /> 
         </View>
     );
 };
