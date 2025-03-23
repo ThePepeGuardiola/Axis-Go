@@ -154,7 +154,7 @@ const FormSubmitButton: React.FC<{ title: string; onPress: () => void }> = ({
   title,
   onPress,
 }) => (
-  <TouchableOpacity style={buttonStyles.button} onPress={() => router.replace("/Login")}>
+  <TouchableOpacity style={buttonStyles.button} onPress={() => router.replace("/Public/login")}>
     <Text style={buttonStyles.buttonText}>{title}</Text>
   </TouchableOpacity>
 );
@@ -172,7 +172,7 @@ const SignupForm = () => (
 // Componente de subtexto
 const Subtext = () => (
   <View style={subtextStyles.container}>
-    <TouchableOpacity onPress={() => router.push('/Login')}>
+    <TouchableOpacity onPress={() => router.push('login')}>
           <Text style={subtextStyles.textBold}>Already have an account</Text>
     </TouchableOpacity>
     <Text style={subtextStyles.textAccent}>Or continue with</Text>

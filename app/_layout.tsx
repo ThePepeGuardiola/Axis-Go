@@ -1,25 +1,18 @@
-import { Stack, usePathname, useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { Stack } from 'expo-router';
+import AuthGuard from './components/AuhtGuard';
+import { AuthProvider } from '../context/Authcontext';
 
-export default function Layout() {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  redirectIfRootPath(pathname, router);
-
+export default function RootLayout() {
   return (
-    <>
-      <StatusBar hidden />
-      <Stack screenOptions={{ headerShown: false }} />
-    </>
+    <AuthProvider>
+      <AuthGuard>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="signup" />
+          <Stack.Screen name="Auth" />
+        </Stack>
+      </AuthGuard>
+    </AuthProvider>
   );
 }
-function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRouter>) {
-  useEffect(() => {
-    if (pathname === "/") {
-      router.replace("/Login");
-    }
-  }, [pathname]);
-}
-

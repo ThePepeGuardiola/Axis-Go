@@ -10,7 +10,7 @@ const DATA = [
   {
     id: "1",
     category: "Supermercados",
-    icon: "star",
+    icon: "star" as "star",
     items1: ["Jumbo, Av. Luperon"],
     items2: ["1.7 Km"],
   },
@@ -106,7 +106,6 @@ export default function App() {
     const data = Array.from({ length: gradientHeight }, (_, i) => i);
     return(
 
-      
         <View style={styles.container}>
           
           {data.map((_, i) => (
@@ -139,7 +138,7 @@ export default function App() {
           {/* Icono */}
 
           <View style={styles.headerContainer}>
-            <FontAwesome name={item.icon} size={23} color="#900020" style={styles.icon} />
+            <FontAwesome name={item.icon as "star"} size={23} color="#900020" style={styles.icon} />
             <Text style={styles.MainText}>{item.category}</Text>
           </View>
 
@@ -173,7 +172,6 @@ export default function App() {
                
                
   </View>
-  
 );
 }
 

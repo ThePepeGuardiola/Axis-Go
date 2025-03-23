@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable, Platform } from 'react-native';
+import React, { JSXElementConstructor, ReactElement, useState } from 'react';
+import { View, Text, Image, StyleSheet, Pressable, Platform, GestureResponderEvent, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import IconInput from '@/components/IconInput';
+import IconInput from '../../components/IconInput';
+import { router } from 'expo-router';
+import { useAuth } from '../../context/Authcontext';
 
 const data = [
     { label: '+1 (US)', value: 'Estados Unidos' },
@@ -28,6 +30,9 @@ export default function PerfilUsuario() {
     const [value_1, setValue_1] = useState(null);
     const [value_2, setValue_2] = useState(null);
     const [profileImage, setProfileImage] = useState(require('../../assets/images/user-icon.png'));
+    const [isPressed1, setIsPressed1] = useState(false);
+    const [isPressed2, setIsPressed2] = useState(false);
+    const { logout } = useAuth(); // Usar el hook de autenticación
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -42,23 +47,11 @@ export default function PerfilUsuario() {
         }
     };
 
-    //Botones
-
-    const [isPressed1, setIsPressed1] = useState(false);
-    const [isPressed2, setIsPressed2] = useState(false);
-
-    const renderItem = (item: { label: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; value: null; }) => {
+    // Función para renderizar los elementos del dropdown
+    const renderItem = (item: any) => {
         return (
             <View style={styles.item}>
-            <Text style={styles.textItem}>{item.label}</Text>
-            {item.value === value_1 && (
-                <AntDesign
-                style={styles.icon}
-                color="black"
-                name="Safety"
-                size={20}
-                />
-            )}
+                <Text style={styles.textItem}>{item.label}</Text>
             </View>
         );
     };
@@ -175,7 +168,8 @@ export default function PerfilUsuario() {
                             <Text style={{color: 'white', textAlign: 'center', fontSize: 16, fontWeight: 700, marginHorizontal: 10}}>Cartera</Text>
                         </Pressable>
 
-                        <Pressable style={isPressed2 ? styles.buttonPressed : styles.button}
+                        <Pressable 
+                            style={isPressed2 ? styles.buttonPressed : styles.button}
                             onPressIn={() => setIsPressed2(true)}
                             onPressOut={() => setIsPressed2(false)}
                             hitSlop={10}
@@ -184,11 +178,18 @@ export default function PerfilUsuario() {
                             <Image source={require('../../assets/icons/time.png')} />
                             <Text style={{color: 'white', textAlign: 'center', fontSize: 16, fontWeight: 700, marginHorizontal: 10}}>Recientes</Text>
                         </Pressable>
+
+                        <Pressable 
+                        style={styles.logoutButton}
+                        onPress={logout} // Conectar el botón con la función logout
+                        >
+                            <Text style={{color: 'white', textAlign: 'center', fontSize: 16, fontWeight: 700, marginHorizontal: 10}}>Logout</Text>
+                        </Pressable>
                     </View>
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
@@ -257,6 +258,30 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#000000',
         width: '45%',
+        paddingVertical: 15,
+        paddingHorizontal: 5,
+        borderRadius: 10,
+        marginVertical: 5
+    },
+    logoutButton: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#900020',
+        width: '100%',
+        paddingVertical: 15,
+        paddingHorizontal: 5,
+        borderRadius: 10,
+        marginVertical: 5
+    },
+    logoutButtonPressed: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#000000',
+        width: '100%',
         paddingVertical: 15,
         paddingHorizontal: 5,
         borderRadius: 10,
