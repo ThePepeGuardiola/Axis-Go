@@ -43,7 +43,6 @@ export default function PerfilUsuario() {
     };
 
     //Botones
-
     const [isPressed1, setIsPressed1] = useState(false);
     const [isPressed2, setIsPressed2] = useState(false);
 

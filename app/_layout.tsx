@@ -18,8 +18,7 @@ export default function Layout() {
 function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRouter>) {
   useEffect(() => {
     if (pathname === "/") {
-      router.replace("/Login");
+      router.replace("/pantalla-inicial");
     }
   }, [pathname]);
 }
-

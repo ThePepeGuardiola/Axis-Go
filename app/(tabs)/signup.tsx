@@ -48,11 +48,11 @@ const MySvgComponent = () => (
   </Svg>
 );
 
-export default function App() {
+export default function App(props: { route: any; navigation: any }) {
   return (
     <View style={styles.container}>
-        <MySvgComponent />
-        <CreateAccForm />
+      <MySvgComponent />
+      <CreateAccForm route={props.route} navigation={props.navigation} />
       <StatusBar style="auto" />
     </View>
   );
@@ -61,7 +61,11 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 20,
     backgroundColor: "#fff",
   },
   background: {

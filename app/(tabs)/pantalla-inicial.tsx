@@ -4,51 +4,44 @@ import { StyleSheet, View, Image, Pressable, Text } from "react-native";
 
 export default function App() {
     return(
-
-        
         <View style={styles.container}>
             
             <StatusBar style="auto"/>
 
+
             {/* IMAGES */}
 
-
             <Image
-                      source={require('@/assets/images/welcome-image.png')}
-                      style={styles.mainimage}
+                    source={require('@/assets/images/welcome-image.png')}
+                    style={styles.mainimage}
                     />
 
             <Image
-                      source={require('@/assets/images/back-image.png')}
-                      style={styles.backimage}
+                    source={require('@/assets/images/back-image.png')}
+                    style={styles.backimage}
                     />
+
 
             {/* TEXT */}
 
-
             <Text style={styles.mtext}>Descubre tu ruta de transporte ideal aquí.</Text>
-
             <Text style={styles.stext}>Explora todas las rutas de transporte disponibles según tus intereses y destino principal.</Text>
 
 
-        {/* BUTTONS */}
+            {/* BUTTONS */}
+
+            <View style={styles.logbuttons}>
+                <Pressable style={styles.button}>
+                        <Text style={styles.logtext}>Login</Text>
+                </Pressable>
 
 
-        <View style={styles.logbuttons}>
-               <Pressable style={styles.button}>
-                       <Text style={styles.logtext}>Login</Text>
-               </Pressable>
-
-
-               <Pressable style={styles.button2}>
-                       <Text style={styles.logtext2}>Register</Text>
-               </Pressable>
+                <Pressable style={styles.button2}>
+                        <Text style={styles.logtext2}>Register</Text>
+                </Pressable>
+            </View>
         </View>
-            
-
-     </View>
- );
-}
+)};
 
 const styles = StyleSheet.create({
     container: {
@@ -58,14 +51,12 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-end',
     },
-
     backimage: {
         zIndex: -1,
         position: 'absolute',
         top: 0,
         right: 0,
     },
-
     mainimage: {
         overflow: 'hidden',
         left: -330,
@@ -74,7 +65,6 @@ const styles = StyleSheet.create({
         width: 1040,
         resizeMode: 'contain',
     },
-
     mtext: {
         fontSize: 36,
         position: 'absolute',
@@ -83,22 +73,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center'
     },
-
     stext: {
         fontSize: 18,
         textAlign: 'center'
     },
-
     logbuttons:{
         flexDirection: 'row',
     },
-
     logtext: {
         fontSize: 25,
         fontWeight: 'bold',
         color: 'white',
     },
-
     button: {
         width: '70%',
         marginVertical: 80,
@@ -112,12 +98,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         shadowRadius: 10,
     },
-
     logtext2: {
         fontSize: 25,
         fontWeight: 'bold',
     },
-
     button2: {
         width: '60%',
         marginVertical: 80,
@@ -125,5 +109,4 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-
 });
