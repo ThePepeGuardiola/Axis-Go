@@ -4,6 +4,10 @@ import { SafeAreaView, ScrollView, View, StyleSheet } from 'react-native';
 import { WeatherSection, Categories, RecentSection, Welcome } from '../components/Dashboard';
 import { TopBar } from '../components/Dashboard_header';
 import { BottomNav } from '../components/Dashboard_Footer';
+import {NavigationContainer} from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
 
 const HomeScreen: React.FC = () => {
     return (

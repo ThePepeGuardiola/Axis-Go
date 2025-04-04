@@ -1,30 +1,65 @@
 import React, { useState, useEffect, useRef } from "react";
 import Autosuggest from "react-autosuggest";
-import { GoogleMap, LoadScript, Marker, Polyline, InfoWindow } from "@react-google-maps/api";
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { GoogleMap, LoadScriptNext, Marker, Polyline, InfoWindow } from "@react-google-maps/api";
+import { StyleSheet, View, Button, Text, TouchableOpacity, Image } from "react-native";
+import { router } from 'expo-router';
+import axios from 'axios';
+import { GOOGLE_MAPS_APIKEY } from '@env';
 
 const libraries = ["geometry"];
-const GOOGLE_MAPS_APIKEY = 'AIzaSyC7mGVZuJBQoyjHxGDwoV3xtRbrhpADEX0';
+
+axios.post('http://localhost:5050/api/fetchRoute', {
+  start: 'Avenida John F. Kennedy Km. 5 1/2, SANTO ',
+  end: 'Avenida Los Proceres #3, Santo Domingo, Distrito Nacional · < 1 km'
+})
+.then(response => {
+  console.log('Datos recibidos:', response.data);
+})
+.catch(error => {
+  console.error('Error en la petición:', error);
+});
+
+// keys
+
+// Geocoding API
+// Geolocation API
+// Google Cloud APIs
+// Google Maps for Fleet Routing
+// Places API (New)
+// Routes API
+// Maps JavaScript API
+
+// Función para obtener sugerencias desde el backend
+const fetchSuggestions = async (query) => {
+  if (query.trim().length === 0) return [];
+  try {
+    const response = await axios.post("http://localhost:5050/api/suggestions", { query });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching suggestions", error);
+    return [];
+  }
+};
 
 // Componente de autocompletado para el formulario de direcciones
+
 const AddressAutosuggest = ({ value, onChange, placeholder }) => {
   const [suggestions, setSuggestions] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
 
-  // Función para obtener sugerencias desde Nominatim (limitado a República Dominicana)
   const fetchSuggestions = async (query) => {
     if (query.trim().length === 0) return [];
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=do`
-      );
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching suggestions", error);
-      return [];
-    }
-  };
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=do`
+            );
+            const data = await response.json();
+            return data;
+          } catch (error) {
+            console.error("Error fetching suggestions", error);
+            return [];
+          }
+        };
 
   const onSuggestionsFetchRequested = async ({ value }) => {
     const results = await fetchSuggestions(value);
@@ -32,55 +67,56 @@ const AddressAutosuggest = ({ value, onChange, placeholder }) => {
   };
 
   const onSuggestionsClearRequested = () => {
-    setSuggestions([]);
+{
+      setSuggestions([]);
+    }
   };
 
-  const getSuggestionValue = suggestion => suggestion.display_name;
+  const getSuggestionValue = (suggestion) => suggestion.display_name;
 
-  const renderSuggestion = suggestion => (
+  const renderSuggestion = (suggestion) => (
     <div style={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
       {suggestion.display_name}
     </div>
   );
 
-// Estilos personalizados para el autosuggest
-const theme = {
-  container: { 
-    position: "relative", 
-    width: "100%"
-  },
-  input: { 
-    width: "94%", 
-    padding: "10px", 
-    fontSize: "16px", 
-    border: "1px solid #ccc", 
-    borderRadius: "4px" 
-  },
-  suggestionsContainer: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    right: 0,
-    background: "white",
-    zIndex: 3,
-    borderTop: "none",
-    maxHeight: "200px",
-    overflowY: "auto"
-  },
-  suggestion: { 
-    padding: "10px",
-    zIndex: 3,
-   },
-  suggestionHighlighted: { 
-    backgroundColor: "#ddd" 
-  },
-};
-  
+  // Estilos personalizados para el autosuggest
+  const theme = {
+    container: { 
+      position: "relative", 
+      width: "100%"
+    },
+    input: { 
+      width: "94%", 
+      padding: "10px", 
+      fontSize: "16px", 
+      border: "1px solid #ccc", 
+      borderRadius: "4px" 
+    },
+    suggestionsContainer: {
+      position: "relative", 
+      marginTop: "5px",
+      background: "white",
+      border: "1px solid #ccc",
+      borderRadius: "4px",
+      maxHeight: "200px",
+      overflowY: "auto",
+    },
+    suggestion: { 
+      padding: "10px",
+      zIndex: 3,
+    },
+    suggestionHighlighted: { 
+      backgroundColor: "#ddd" 
+    },
+  };
 
   const inputProps = {
     placeholder,
     value,
-    onChange: (event, { newValue }) => onChange(newValue)
+    onChange: (event, { newValue }) => onChange(newValue),
+    onFocus: () => setIsFocused(true),
+    onBlur: () => setIsFocused(false),
   };
 
   return (
@@ -94,45 +130,11 @@ const theme = {
       theme={theme}
       onSuggestionSelected={(event, { suggestion }) => {
         onChange(suggestion.display_name);
+        setSuggestions([]);
       }}
+      shouldRenderSuggestions={(value) => value.trim().length > 0}
+      focusInputOnSuggestionClick={false}
     />
-  );
-};
-
-// Componente controlado para la tarjeta de dirección "Go again"
-const AddressCard = ({ icon, title, address, placeholder, onChange, onCardPress }) => {
-  const [editing, setEditing] = useState(false);
-
-  const handleBlur = () => {
-    setEditing(false);
-  };
-
-  return (
-    <TouchableOpacity onPress={() => onCardPress(address)}>
-      <View style={styles.card}>
-        <MaterialIcons name={icon} size={24} color="black" />
-        <View style={styles.cardTextContainer}>
-          <Text style={styles.cardTitle}>{title}</Text>
-          {editing ? (
-            <TextInput
-              style={styles.cardInput}
-              value={address}
-              placeholder={placeholder}
-              onChangeText={onChange}
-              onBlur={handleBlur}
-              autoFocus
-            />
-          ) : (
-            <Text
-              style={[styles.cardSubtitle, !address && styles.placeholder]}
-              onPress={() => setEditing(true)}
-            >
-              {address || placeholder}
-            </Text>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
   );
 };
 
@@ -143,17 +145,11 @@ const App = () => {
   const [markers, setMarkers] = useState([]);
   const [route, setRoute] = useState([]);
   const [distance, setDistance] = useState(null);
-  const [duration, setDuration] = useState(null);
   const [addressStart, setAddressStart] = useState("");
   const [addressEnd, setAddressEnd] = useState("");
-  const [isFocusedStart, setIsFocusedStart] = useState(false);
-  const [isFocusedEnd, setIsFocusedEnd] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [mostUsedRoutes, setMostUsedRoutes] = useState([]); // Estado para rutas más utilizadas
   const mapRef = useRef();
-
-  // Estados para las direcciones de las tarjetas "Go again"
-  const [workAddress, setWorkAddress] = useState("");
-  const [homeAddress, setHomeAddress] = useState("");
 
   // Al hacer clic en el mapa se agregan marcadores
   const handleMapClick = (event) => {
@@ -173,30 +169,19 @@ const App = () => {
   useEffect(() => {
     const fetchRoute = async () => {
       if (markers.length === 2) {
-        const url = "https://routes.googleapis.com/directions/v2:computeRoutes";
-        const body = {
-          origin: { location: { latLng: { latitude: markers[0].lat, longitude: markers[0].lng } } },
-          destination: { location: { latLng: { latitude: markers[1].lat, longitude: markers[1].lng } } },
-          travelMode: "DRIVE",
-          routingPreference: "TRAFFIC_AWARE",
-          computeAlternativeRoutes: false,
-        };
-
         try {
-          const response = await fetch(url, {
+          const response = await fetch("http://localhost:5050/api/fetchRoute", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Goog-Api-Key": GOOGLE_MAPS_APIKEY,
-              "X-Goog-FieldMask": "routes.polyline,routes.duration,routes.distanceMeters,routes.legs.duration,routes.legs.distanceMeters",
-            },
-            body: JSON.stringify(body),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              start: markers[0],
+              end: markers[1],
+            }),
           });
 
           const data = await response.json();
           if (data.routes && data.routes.length > 0) {
             const routeData = data.routes[0];
-
 
             // Extraer distancia
             if (routeData.distanceMeters) {
@@ -237,7 +222,6 @@ const App = () => {
     const geocoder = new window.google.maps.Geocoder();
     try {
       const response = await geocoder.geocode({ address });
-      console.log("Geocoding response:", response);
       if (response.results && response.results.length > 0) {
         const location = response.results[0].geometry.location;
         return { lat: location.lat(), lng: location.lng() };
@@ -251,23 +235,74 @@ const App = () => {
     return null;
   };
 
-  // Al presionar una tarjeta se asigna su dirección al input "Where to?"
-  const handleCardPress = (address) => {
-    setAddressEnd(address);
-  };
-
   // Función para agregar marcadores desde el formulario
   const handleAddMarkerFromAddress = async () => {
     const startLocation = await geocodeAddress(addressStart);
     const endLocation = await geocodeAddress(addressEnd);
+  
     if (startLocation && endLocation) {
       setMarkers([startLocation, endLocation]);
+  
+      // Guardar la ruta en la base de datos
+      const newRoute = {
+        startAddress: addressStart,
+        endAddress: addressEnd,
+        distance: distance || 0,
+      };
+  
+      try {
+        const response = await axios.post("http://localhost:5050/api/directions", newRoute);
+        console.log("Ruta guardada:", response.data);
+      } catch (error) {
+        console.error("Error al guardar la ruta:", error);
+        alert("Hubo un problema al guardar la ruta.");
+      }
+    } else {
+      alert("Por favor, asegúrate de que las direcciones sean válidas.");
+    }
+  };
+  // Función para agregar guardar rutas
+  const handleSaveRoute = async () => {
+    if (markers.length === 2 && distance) {
+      const newRoute = {
+        startAddress: addressStart,
+        endAddress: addressEnd,
+        distance,
+      };
+  
+      try {
+        const response = await axios.post("http://localhost:5050/api/saveRoute", newRoute);
+        alert("Ruta guardada exitosamente.");
+        console.log("Ruta guardada:", response.data);
+      } catch (error) {
+        console.error("Error al guardar la ruta:", error);
+        alert("Hubo un problema al guardar la ruta.");
+      }
+    } else {
+      alert("Por favor, asegúrate de tener una ruta válida antes de guardarla.");
     }
   };
 
+  // Función para obtener las rutas más utilizadas
+  const fetchMostUsedRoutes = async () => {
+    try {
+      const response = await axios.get("http://localhost:5050/api/mostUsedRoutes");
+      console.log("Rutas obtenidas:", response.data); // Para depuración
+      setMostUsedRoutes(response.data);
+    } catch (error) {
+      console.error("Error al obtener las rutas más utilizadas:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMostUsedRoutes();
+  }, []);
+
+
   return (
     <View style={styles.container}>
-      <LoadScript googleMapsApiKey={GOOGLE_MAPS_APIKEY} libraries={libraries}>
+      <LoadScriptNext googleMapsApiKey={GOOGLE_MAPS_APIKEY} libraries={libraries}>
+
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
@@ -295,44 +330,50 @@ const App = () => {
             </InfoWindow>
           )}
         </GoogleMap>
-      </LoadScript>
+      </LoadScriptNext>
 
-      {/* Sección "Go again" con las tarjetas */}
-      <View style={styles.goAgainContainer}>
-        <Text style={styles.goAgainTitle}>Go again</Text>
-        <View style={styles.cardContainer}>
-          <AddressCard
-            icon="work"
-            title="Work"
-            address={workAddress}
-            placeholder="Agregar dirección"
-            onChange={setWorkAddress}
-            onCardPress={handleCardPress}
-          />
-          <AddressCard
-            icon="home"
-            title="Home"
-            address={homeAddress}
-            placeholder="Agregar dirección"
-            onChange={setHomeAddress}
-            onCardPress={handleCardPress}
-          />
-        </View>
+      <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
+                <View>
+                  <Image
+                    source={require('../../assets/icons/arrow_back.png')}
+                    style={{ position: 'relative', top: 15, left:30, width: 30, height: 30 }}
+                  />
+                </View>
+              </TouchableOpacity>
+
+       {/* Sección de rutas más utilizadas */}
+       <View style={styles.mostUsedRoutesContainer}>
+          <Text style={styles.mostUsedRoutesTitle}>Ruta Más Transcurrida</Text>
+            {mostUsedRoutes && mostUsedRoutes.length > 0 ? (
+              <View style={styles.mostUsedRoute}>
+                <View style={styles.routeTextContainer}>
+               <Text style={styles.routeLabel}>Inicio: </Text>
+              <Text style={styles.routeText}>{mostUsedRoutes[0].start_address}</Text>
       </View>
+      <View style={styles.routeTextContainer}>
+          <Text style={styles.routeLabel}>Fin: </Text>
+          <Text style={styles.routeText}>{mostUsedRoutes[0].end_address}</Text>
+      </View>
+    </View>
+  ) : (
+    <Text>No hay rutas disponibles.</Text>
+  )}
+</View>
 
       {/* Formulario de direcciones con react-autosuggest */}
       <View style={styles.formContainer}>
         <AddressAutosuggest
           value={addressStart}
           onChange={setAddressStart}
-          placeholder="My Location"
+          placeholder="Mi Ubicación"
         />
         <AddressAutosuggest
           value={addressEnd}
           onChange={setAddressEnd}
-          placeholder="Where to?"
+          placeholder="Hacia Donde?"
         />
         <Button title="Agregar Direcciones" onPress={handleAddMarkerFromAddress} color="#900020" />
+        <Button title="Guardar Ruta" onPress={handleSaveRoute} color="#900020" />
       </View>
     </View>
   );
@@ -343,28 +384,35 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
   },
-  goAgainContainer: {
-    position: "absolute",
-    top: 500,
-    left: "48%",
-    transform: [{ translateX: "-50%" }],
-    backgroundColor: "white",
+
+  mostUsedRoutesContainer: {
+    marginTop: 20,
     padding: 10,
+    backgroundColor: "#f9f9f9",
     borderRadius: 10,
-    margin: 10,
-    width: "90%",
-    maxWidth: 500,
-    zIndex: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
   },
-  goAgainTitle: {
+  mostUsedRoutesTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
   },
+  mostUsedRoute: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginTop: 5,
+  },
+  routeLabel: {
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  routeText: {
+    fontSize: 14,
+  },
+
   card: {
     flexDirection: "row",
     alignItems: "center",
