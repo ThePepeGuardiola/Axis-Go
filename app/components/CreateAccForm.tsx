@@ -172,7 +172,7 @@ const SignupForm = () => (
 // Componente de subtexto
 const Subtext = () => (
   <View style={subtextStyles.container}>
-    <TouchableOpacity onPress={() => router.push('login')}>
+    <TouchableOpacity onPress={() => router.push('/Public/login')}>
           <Text style={subtextStyles.textBold}>Already have an account</Text>
     </TouchableOpacity>
     <Text style={subtextStyles.textAccent}>Or continue with</Text>

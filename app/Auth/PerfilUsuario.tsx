@@ -5,8 +5,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import IconInput from '../../components/IconInput';
-import { router } from 'expo-router';
 import { useAuth } from '../../context/Authcontext';
+import { router } from 'expo-router';
 
 const data = [
     { label: '+1 (US)', value: 'Estados Unidos' },
@@ -32,7 +32,7 @@ export default function PerfilUsuario() {
     const [profileImage, setProfileImage] = useState(require('../../assets/images/user-icon.png'));
     const [isPressed1, setIsPressed1] = useState(false);
     const [isPressed2, setIsPressed2] = useState(false);
-    const { logout } = useAuth(); // Usar el hook de autenticación
+    const { logout } = useAuth();
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -55,6 +55,12 @@ export default function PerfilUsuario() {
             </View>
         );
     };
+
+    const handleLogout = () => {
+        setTimeout(() => {
+          logout();
+        }, 300);
+      };
 
     return (
         <SafeAreaProvider>
@@ -181,7 +187,7 @@ export default function PerfilUsuario() {
 
                         <Pressable 
                         style={styles.logoutButton}
-                        onPress={logout} // Conectar el botón con la función logout
+                        onPress={handleLogout}
                         >
                             <Text style={{color: 'white', textAlign: 'center', fontSize: 16, fontWeight: 700, marginHorizontal: 10}}>Logout</Text>
                         </Pressable>

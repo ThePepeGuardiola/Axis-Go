@@ -59,7 +59,7 @@ export const RecentSection = () => (
   <View style={styles.recentSection}>
     <View style={styles.recentHeader}>
       <Text style={styles.recentTitle}>Recientes</Text>
-      <Text style={styles.seeAll}>See All</Text>
+      <Text style={styles.seeAll}>Ver Todo</Text>
     </View>
     <View style={styles.recentItem}>
       <Text style={styles.itemTitle}>Supermercados</Text>

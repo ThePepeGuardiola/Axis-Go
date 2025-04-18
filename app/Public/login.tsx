@@ -12,73 +12,109 @@ WebBrowser.maybeCompleteAuthSession();
 
 export default function Login() {
     const [correo, setCorreo] = useState('');
-    const [contraseña, setContraseña] = useState('');
+    const [password, setPassword] = useState('');
     const [onPressIn, setOnPressIn] = useState(false);
     const { login } = useAuth();
 
     const [request, response, promptAsync] = Google.useAuthRequest({
-        clientId: '685273445323-99ecno46gmaj0perclsb4t9dnq51gfo8.apps.googleusercontent.com',
+        clientId: '694329343357-atp58qbde6oguf753bpo2j5ssek0b7iq.apps.googleusercontent.com',
         scopes: ['openid', 'email', 'profile'],
-        responseType: 'id_token'
+        responseType: 'id_token',
+        redirectUri: 'http://localhost:8081/oauth2callback',
     });
 
     useEffect(() => {
         if (response?.type === 'success') {
             const { id_token } = response.params;
-            if (id_token) handleGoogleLogin(id_token);
-            else Alert.alert('Error', 'No se recibió el ID Token de Google');
+            
+            if (id_token) {
+                handleGoogleLogin(id_token);
+            } else {
+                Alert.alert('Error de autenticación', 'No se recibió información válida de Google', [
+                    { text: 'OK', style: 'default' }
+                ]);
+            }
+        } else if (response?.type === 'error') {
+            Alert.alert('Error de autenticación', 'No se pudo iniciar sesión con Google', [
+                { text: 'OK', style: 'default' }
+            ]);
         }
     }, [response]);
 
     const handleLogin = async () => {
         try {
-            console.log('Iniciando login con:', { correo });
             const res = await fetch('http://localhost:5050/api/autenticarUsuario', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ correo, password: contraseña })
+                body: JSON.stringify({ correo, password: password })
             });
     
             const data = await res.json();
-            console.log('Respuesta del servidor:', data);
     
             if (data.status) {
-                console.log('Login exitoso, guardando token');
+                if (!data.session_token) {
+                    Alert.alert('Error de autenticación', 'No se recibió un token de sesión válido', [
+                        { text: 'OK', style: 'default' }
+                    ]);
+                    return;
+                }
+                
                 await login(data.session_token);
-                console.log('Token guardado');
+                router.replace('/Auth/home');
             } else {
-                Alert.alert('Error', data.message);
+                Alert.alert('Error de autenticación', data.message || 'Credenciales inválidas', [
+                    { text: 'OK', style: 'default' }
+                ]);
             }
         } catch (error) {
-            console.error('Error en login:', error);
-            Alert.alert('Error', 'Ocurrió un error, intenta de nuevo.');
+            Alert.alert('Error de conexión', 'No se pudo conectar con el servidor. Verifique su conexión a internet e intente nuevamente.', [
+                { text: 'OK', style: 'default' }
+            ]);
         }
     };
 
     const handleGoogleLogin = async (idToken: string) => {
         try {
+            if (!idToken) {
+                throw new Error('Token inválido');
+            }
+            
             const res = await fetch('http://localhost:5050/api/autenticarUsuarioGoogle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: idToken })
             });
-
+            
             const data = await res.json();
-
+            
             if (data.status) {
-                // Usar el contexto de autenticación en lugar de AsyncStorage directo
-                await login(data.session_token);
-                router.replace('/Auth/home');            
+                // Buscar el token en diferentes ubicaciones posibles
+                let sessionToken = data.session_token;
+                
+                if (!sessionToken && data.usuario && data.usuario.session_token) {
+                    sessionToken = data.usuario.session_token;
+                }
+                
+                if (sessionToken) {
+                    await login(sessionToken);
+                    router.replace('/Auth/home');
+                } else {
+                    Alert.alert('Error de autenticación', 'No se recibió un token de sesión válido', [
+                        { text: 'OK', style: 'default' }
+                    ]);
+                }
             } else {
-                Alert.alert('Error', 'Autenticación fallida con Google');
+                Alert.alert('Error de autenticación', data.message || 'No se pudo iniciar sesión con Google', [
+                    { text: 'OK', style: 'default' }
+                ]);
             }
         } catch (error) {
-            console.error('Error autenticando con Google:', error);
-            Alert.alert('Error', 'Ocurrió un problema con Google');
+            Alert.alert('Error de conexión', 'No se pudo completar el inicio de sesión con Google. Intente nuevamente.', [
+                { text: 'OK', style: 'default' }
+            ]);
         }
     };
 
-    // El resto del componente permanece igual
     return (
         <SafeAreaProvider>
             <StatusBar style='auto'/>
@@ -86,7 +122,7 @@ export default function Login() {
                 <Background />
                 <View style={styles.headerContainer}>
                     <Text style={styles.title}>Iniciar Sesión</Text>
-                    <Text style={styles.text}>¡Bienvenido de nuevo, te hemos hechado de menos!</Text>
+                    <Text style={styles.text}>¡Bienvenido de nuevo, te hemos echado de menos!</Text>
                 </View>
 
                 <View style={{ flex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', width: '100%' }} >
@@ -100,20 +136,20 @@ export default function Login() {
                     <TextInput
                         style={styles.area}
                         placeholder="Contraseña"
-                        value={contraseña}
-                        onChangeText={setContraseña}
+                        value={password}
+                        onChangeText={setPassword}
                         secureTextEntry
                     />
                 </View>
                 <View>
-                    <Pressable
+                    {/* <Pressable
                         onPressIn={() => setOnPressIn(true)}
                         onPressOut={() => setOnPressIn(false)}
                         hitSlop={5}
                         pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
                     >
                         <Text style={onPressIn ? styles.text : styles.textRed}>Olvidaste tu contraseña?</Text>
-                    </Pressable>
+                    </Pressable> */}
                 </View>
 
                 <View style={styles.buttonContainer}>
@@ -125,7 +161,7 @@ export default function Login() {
                     </Pressable>
 
                     <Pressable
-                        onPress={() => router.push('/signup')}
+                        onPress={() => router.push('/Public/signup')}
                         hitSlop={5}
                         pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
                     >
@@ -147,20 +183,18 @@ export default function Login() {
                         <Image source={require('../../assets/icons/google.png')} style={styles.socialIcon} />
                     </Pressable>
 
-                    <Pressable style={onPressIn ? styles.imgFocus : styles.img}>
+                    {/* <Pressable style={onPressIn ? styles.imgFocus : styles.img}>
                         <Image source={require('../../assets/icons/facebook-ci.png')} style={styles.socialIcon} />
-                    </Pressable>
+                    </Pressable> */}
 
-                    <Pressable style={onPressIn ? styles.imgFocus : styles.img}>
+                    {/* <Pressable style={onPressIn ? styles.imgFocus : styles.img}>
                         <Image source={require('../../assets/icons/apple.png')} style={styles.socialIcon} />
-                    </Pressable>
+                    </Pressable> */}
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>
     );
 }
-
-
 
 const styles = StyleSheet.create({
     container: {

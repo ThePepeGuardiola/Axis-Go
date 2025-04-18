@@ -48,7 +48,7 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
           console.log('Funcion no implementada.');
           }} />
   
-      <TextInput style={styles.searchBar} placeholder="Search" />
+      <TextInput style={styles.searchBar} placeholder="Buscar" />
   
       <IconButton2 iconPath="M14.8569 17.0817C16.7514 16.857 18.5783..." onPress={() => {
           console.log('Funcion no implementada.');
