@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Image, Pressable, Text } from "react-native";
+import { StyleSheet, View, Image, Pressable, Text, Platform } from "react-native";
 
 
 export default function App() {
@@ -107,10 +107,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         backgroundColor: '#900020',
-        shadowColor: '#FF9EB4',
-        shadowOffset:{ width: 0, height: 7},
-        shadowOpacity: 1,
-        shadowRadius: 10,
+        ...(Platform.OS === 'web' ? {
+            boxShadow: '0px 7px 10px #FF9EB4'
+        } : {
+            shadowColor: '#FF9EB4',
+            shadowOffset:{ width: 0, height: 7},
+            shadowOpacity: 1,
+            shadowRadius: 10,
+        }),
     },
 
     logtext2: {

@@ -257,6 +257,18 @@ const formContainerStyles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
     width: Dimensions.get("window").width,
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...(Platform.OS === 'web' ? {
+        boxShadow: '0px 10px 20px rgba(255, 176, 193, 0.5)'
+    } : {
+        shadowColor: "#FFB0C1",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.5,
+        shadowRadius: 20,
+    }),
   },
 });
 

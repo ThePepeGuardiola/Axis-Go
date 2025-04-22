@@ -48,7 +48,7 @@ const MySvgComponent = () => (
   </Svg>
 );
 
-export default function App() {
+export default function SignupScreen() {
   return (
     <View style={styles.container}>
         <MySvgComponent />

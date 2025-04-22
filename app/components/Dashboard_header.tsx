@@ -75,3 +75,7 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
         padding: 10 
     }
     });
+
+export default function DashboardHeader() {
+  // ... existing component code ...
+}

@@ -1,12 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { Pressable, View, StyleSheet, Text, TextInput, Image, Alert } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { Pressable, View, StyleSheet, Text, TextInput, Image, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import Background from '@/components/Background';
+import Background from '../../components/Background';
 import { useAuth } from '../../context/Authcontext';
+import { ROUTES } from '../../config/routes';
+import api from '../../utils/axiosConfig';
+import { useAlert } from '../../context/AlertContext';
+import LoadingScreen from '../components/LoadingScreen';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -14,14 +18,36 @@ export default function Login() {
     const [correo, setCorreo] = useState('');
     const [password, setPassword] = useState('');
     const [onPressIn, setOnPressIn] = useState(false);
-    const { login } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const { login, isProcessing } = useAuth();
+    const { showAlert } = useAlert();
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         clientId: '694329343357-atp58qbde6oguf753bpo2j5ssek0b7iq.apps.googleusercontent.com',
         scopes: ['openid', 'email', 'profile'],
         responseType: 'id_token',
-        redirectUri: 'http://localhost:8081/oauth2callback',
+        ...(Platform.OS === 'web' ? {
+            expoClientId: '694329343357-atp58qbde6oguf753bpo2j5ssek0b7iq.apps.googleusercontent.com',
+            webClientId: '694329343357-atp58qbde6oguf753bpo2j5ssek0b7iq.apps.googleusercontent.com'
+        } : {}),
     });
+
+    const handleGoogleAuth = useCallback(async () => {
+        if (isLoading) return;
+        
+        try {
+            const result = await promptAsync();
+            if (result?.type !== 'success') {
+                if (result?.type === 'error') {
+                    showAlert('Error', 'No se pudo iniciar sesión con Google', 'error');
+                }
+                return;
+            }
+        } catch (error) {
+            console.error('Error iniciando auth de Google:', error);
+            showAlert('Error', 'Error al iniciar la autenticación con Google', 'error');
+        }
+    }, [isLoading, promptAsync, showAlert]);
 
     useEffect(() => {
         if (response?.type === 'success') {
@@ -30,65 +56,69 @@ export default function Login() {
             if (id_token) {
                 handleGoogleLogin(id_token);
             } else {
-                Alert.alert('Error de autenticación', 'No se recibió información válida de Google', [
-                    { text: 'OK', style: 'default' }
-                ]);
+                showAlert('Error', 'No se recibió información válida de Google', 'error');
             }
-        } else if (response?.type === 'error') {
-            Alert.alert('Error de autenticación', 'No se pudo iniciar sesión con Google', [
-                { text: 'OK', style: 'default' }
-            ]);
         }
     }, [response]);
 
     const handleLogin = async () => {
+        if (isLoading) return;
+        
         try {
-            const res = await fetch('http://localhost:5050/api/autenticarUsuario', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ correo, password: password })
+            setIsLoading(true);
+            
+            if (!correo || !password) {
+                showAlert('Error', 'Por favor ingrese correo y contraseña', 'error');
+                return;
+            }
+
+            const response = await api.post('/api/autenticarUsuario', {
+                correo,
+                password
             });
     
-            const data = await res.json();
+            const { data } = response;
     
             if (data.status) {
                 if (!data.session_token) {
-                    Alert.alert('Error de autenticación', 'No se recibió un token de sesión válido', [
-                        { text: 'OK', style: 'default' }
-                    ]);
+                    showAlert('Error', 'No se recibió un token de sesión válido', 'error');
                     return;
                 }
                 
                 await login(data.session_token);
-                router.replace('/Auth/home');
             } else {
-                Alert.alert('Error de autenticación', data.message || 'Credenciales inválidas', [
-                    { text: 'OK', style: 'default' }
-                ]);
+                showAlert('Error', data.message || 'Credenciales inválidas', 'error');
             }
-        } catch (error) {
-            Alert.alert('Error de conexión', 'No se pudo conectar con el servidor. Verifique su conexión a internet e intente nuevamente.', [
-                { text: 'OK', style: 'default' }
-            ]);
+        } catch (error: any) {
+            console.error('Error en login:', error.response?.data || error.message);
+            
+            if (error.response?.status === 401) {
+                showAlert('Error', 'Credenciales inválidas', 'error');
+            } else {
+                showAlert('Error', 'No se pudo conectar con el servidor. Verifique su conexión a internet e intente nuevamente.', 'error');
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleGoogleLogin = async (idToken: string) => {
+        if (isLoading) return;
+        
         try {
+            setIsLoading(true);
+            
             if (!idToken) {
                 throw new Error('Token inválido');
             }
             
-            const res = await fetch('http://localhost:5050/api/autenticarUsuarioGoogle', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: idToken })
+            const response = await api.post('/api/autenticarUsuarioGoogle', {
+                token: idToken
             });
             
-            const data = await res.json();
+            const { data } = response;
             
             if (data.status) {
-                // Buscar el token en diferentes ubicaciones posibles
                 let sessionToken = data.session_token;
                 
                 if (!sessionToken && data.usuario && data.usuario.session_token) {
@@ -97,21 +127,17 @@ export default function Login() {
                 
                 if (sessionToken) {
                     await login(sessionToken);
-                    router.replace('/Auth/home');
                 } else {
-                    Alert.alert('Error de autenticación', 'No se recibió un token de sesión válido', [
-                        { text: 'OK', style: 'default' }
-                    ]);
+                    showAlert('Error', 'No se recibió un token de sesión válido', 'error');
                 }
             } else {
-                Alert.alert('Error de autenticación', data.message || 'No se pudo iniciar sesión con Google', [
-                    { text: 'OK', style: 'default' }
-                ]);
+                showAlert('Error', data.message || 'No se pudo iniciar sesión con Google', 'error');
             }
-        } catch (error) {
-            Alert.alert('Error de conexión', 'No se pudo completar el inicio de sesión con Google. Intente nuevamente.', [
-                { text: 'OK', style: 'default' }
-            ]);
+        } catch (error: any) {
+            console.error('Error en Google login:', error.response?.data || error.message);
+            showAlert('Error', 'No se pudo completar el inicio de sesión con Google. Intente nuevamente.', 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -125,12 +151,13 @@ export default function Login() {
                     <Text style={styles.text}>¡Bienvenido de nuevo, te hemos echado de menos!</Text>
                 </View>
 
-                <View style={{ flex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', width: '100%' }} >
+                <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.area}
                         placeholder="Correo Electrónico"
                         value={correo}
                         onChangeText={setCorreo}
+                        editable={!isLoading}
                     />
 
                     <TextInput
@@ -139,47 +166,42 @@ export default function Login() {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
+                        editable={!isLoading}
                     />
-                </View>
-                <View>
-                    {/* <Pressable
-                        onPressIn={() => setOnPressIn(true)}
-                        onPressOut={() => setOnPressIn(false)}
-                        hitSlop={5}
-                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
-                    >
-                        <Text style={onPressIn ? styles.text : styles.textRed}>Olvidaste tu contraseña?</Text>
-                    </Pressable> */}
                 </View>
 
                 <View style={styles.buttonContainer}>
                     <Pressable
-                        style={onPressIn ? styles.buttonActive : styles.button}
+                        style={[
+                            styles.button,
+                            isLoading && styles.buttonDisabled
+                        ]}
                         onPress={handleLogin}
+                        disabled={isLoading}
                     >
-                        <Text style={styles.buttonText}>Iniciar</Text>
-                    </Pressable>
-
-                    <Pressable
-                        onPress={() => router.push('/Public/signup')}
-                        hitSlop={5}
-                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
-                    >
-                        <Text style={onPressIn ? styles.textRed : styles.text}>
-                            Crear nueva cuenta
+                        <Text style={styles.buttonText}>
+                            {isLoading ? 'Iniciando...' : 'Iniciar'}
                         </Text>
                     </Pressable>
 
                     <Pressable
-                        hitSlop={5}
-                        pressRetentionOffset={{top: 5, left: 5, bottom: 5, right: 5}}
+                        onPress={() => router.push(ROUTES.PUBLIC.SIGNUP as any)}
+                        disabled={isLoading}
                     >
-                        <Text style={onPressIn ? styles.text : styles.container}>O continuar con</Text>
+                        <Text style={styles.text}>
+                            Crear nueva cuenta
+                        </Text>
                     </Pressable>
+
+                    {/* <Text style={styles.text}>O continuar con</Text> */}
                 </View>
 
                 <View style={styles.socialLoginContainer}>
-                    <Pressable style={onPressIn ? styles.imgFocus : styles.img} onPress={() => promptAsync()}>
+                    <Pressable 
+                        style={styles.img} 
+                        onPress={handleGoogleAuth}
+                        disabled={isLoading}
+                    >
                         <Image source={require('../../assets/icons/google.png')} style={styles.socialIcon} />
                     </Pressable>
 
@@ -191,6 +213,7 @@ export default function Login() {
                         <Image source={require('../../assets/icons/apple.png')} style={styles.socialIcon} />
                     </Pressable> */}
                 </View>
+                {(isLoading || isProcessing) && <LoadingScreen />}
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -218,34 +241,17 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textAlign: 'center',
     },
-    textRed: {
-        color: '#900020',
-        fontSize: 16,
-        fontWeight: '600',
-    },
     button: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
         height: 60,
-        color: '#fff',
-        fontWeight: '700',
         backgroundColor: '#900020',
-        fontSize: 25,
         borderRadius: 10
     },
-    buttonActive: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: 60,
-        color: '#fff',
-        fontWeight: '700',
-        backgroundColor: '#000',
-        fontSize: 25,
-        borderRadius: 10
+    buttonDisabled: {
+        backgroundColor: '#cccccc',
     },
     buttonText: {
         color: 'white',
@@ -263,37 +269,15 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         backgroundColor: '#ffeaee',
     },
-    areaFocus: {
-        borderWidth: 2,
-        borderColor: '#900020',
-        borderRadius: 10,
-        width: '100%',
-        paddingVertical: 20,
-        paddingHorizontal: 20,
-        fontSize: 16,
-        fontWeight: '700',
-        backgroundColor: '#ffeaee',
-    },
     img: {
         marginHorizontal: 5,
         borderRadius: 20,
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
-    imgFocus: {
-        marginHorizontal: 5,
-        borderRadius: 20,
-        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    },
     socialIcon: {
         width: 40,
         height: 40,
         margin: 10
-    },
-    forgotPassword: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        width: '100%',
     },
     headerContainer: {
         flex: 2,
@@ -309,6 +293,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
         alignItems: 'center',
         width: '100%',
+        gap: 20,
     },
     buttonContainer: {
         flex: 2,

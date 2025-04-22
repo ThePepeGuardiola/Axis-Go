@@ -1,14 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
+import api from '../utils/axiosConfig';
+import { ROUTES } from '../config/routes';
+import { useAlert } from './AlertContext';
 
 type AuthContextType = {
   isAuthenticated: boolean;
   loading: boolean;
+  isProcessing: boolean;
   login: (token: string) => Promise<void>;
   logout: () => Promise<void>;
-  // Add a new navigate function that works consistently
-  safeNavigate: (path: string) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,129 +18,129 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  // Flag to track if navigation is in progress
-  const [navigationInProgress, setNavigationInProgress] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { showAlert } = useAlert();
+  const navigationInProgress = useRef(false);
 
-  useEffect(() => {
-    // Check auth state on startup
-    const checkAuth = async () => {
-      try {
-        setLoading(true);
-        const token = await AsyncStorage.getItem('session_token');
-        console.log("Initial auth check:", !!token ? "Token found" : "No token");
-        setIsAuthenticated(!!token);
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    checkAuth();
-  }, []);
-
-  // Centralized navigation function to ensure consistency
-  const safeNavigate = useCallback((path: string) => {
-    // Don't navigate if already in progress
-    if (navigationInProgress) {
-      console.log(`Navigation already in progress, ignoring request to ${path}`);
-      return;
-    }
-
-    console.log(`Safely navigating to: ${path}`);
-    setNavigationInProgress(true);
-    
-    // Use replace for more predictable navigation
-    router.replace(path);
-    
-    // Reset navigation flag after delay
-    setTimeout(() => {
-      setNavigationInProgress(false);
-      console.log("Navigation lock released");
-    }, 500);
-  }, [router, navigationInProgress]);
-
-  // Use useCallback to prevent unnecessary function recreation
-  const login = useCallback(async (token: string) => {
+  const checkAuth = useCallback(async () => {
     try {
-      console.log('Starting login process with token:', token ? token.substring(0, 10) + '...' : 'token undefined');
+      setLoading(true);
+      const token = await AsyncStorage.getItem('session_token');
       
       if (!token) {
-        console.error('Error: Token is undefined or empty');
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        const response = await api.get('/api/verificarSesion');
+        setIsAuthenticated(response.data.status === true);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  const handleNavigation = useCallback((route: string) => {
+    if (navigationInProgress.current) return;
+    navigationInProgress.current = true;
+    
+    // Usar setTimeout para asegurar que el estado se ha actualizado
+    setTimeout(() => {
+      router.replace(route);
+      navigationInProgress.current = false;
+    }, 50);
+  }, []);
+
+  const login = useCallback(async (token: string) => {
+    try {
+      if (!token) {
         throw new Error('Token is required for login');
       }
+
+      setIsProcessing(true);
+      navigationInProgress.current = true;
       
-      // Store token first
+      // Actualizar el token y el estado
       await AsyncStorage.setItem('session_token', token);
       
-      // Update authentication state
-      setIsAuthenticated(true);
-      console.log('Login completed, authenticated state is now true');
+      // Esperar un poco para asegurar que el token se guardó
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Use the consistent navigation method
-      safeNavigate('/Auth/home');
+      setIsAuthenticated(true);
+      showAlert('¡Bienvenido!', 'Has iniciado sesión correctamente', 'success');
+      
+      // Navegar después de un delay
+      setTimeout(() => {
+        router.replace(ROUTES.AUTH.HOME);
+        navigationInProgress.current = false;
+        setIsProcessing(false);
+      }, 500);
     } catch (error) {
-      console.error('Error in login:', error);
+      navigationInProgress.current = false;
+      setIsProcessing(false);
+      showAlert('Error', 'No se pudo iniciar sesión', 'error');
       throw error;
     }
-  }, [safeNavigate]);
+  }, [showAlert]);
 
   const logout = useCallback(async () => {
     try {
-      console.log('Starting logout process');
+      setIsProcessing(true);
+      navigationInProgress.current = true;
       
-      // Get the current token
       const token = await AsyncStorage.getItem('session_token');
       
-      // Update state first for immediate UI feedback
-      setIsAuthenticated(false);
-      
-      // Then remove token
-      await AsyncStorage.removeItem('session_token');
-      
-      // Only attempt server call if there's a token
       if (token) {
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000);
-          
-          const response = await fetch('http://localhost:5050/api/cerrarSesion', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-              'session-token': token
-            },
-            signal: controller.signal
+          await api.post('/api/cerrarSesion', {
+            session_token: token
           });
-          
-          clearTimeout(timeoutId);
-          
-          const data = await response.json();
-          console.log('Server response (logout):', data);
-        } catch (error) {
-          console.error('Error communicating with server for logout:', error);
+          showAlert('Sesión cerrada', 'Has cerrado sesión correctamente', 'info');
+        } catch (error: any) {
+          console.error('Error al cerrar sesión en el servidor:', error.response?.data || error.message);
         }
       }
       
-      console.log('Logout completed');
+      // Limpiar el estado local
+      setIsAuthenticated(false);
+      await AsyncStorage.removeItem('session_token');
+      await AsyncStorage.removeItem('last_token_validation');
+      await AsyncStorage.removeItem('user_data');
       
-      // Use the consistent navigation method
-      safeNavigate('/Public/login');
-    } catch (error) {
-      console.error('Error in logout:', error);
+      // Esperar un poco antes de navegar
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Navegar después de un delay
+      setTimeout(() => {
+        router.replace(ROUTES.PUBLIC.LOGIN);
+        navigationInProgress.current = false;
+        setIsProcessing(false);
+      }, 500);
+    } catch (error: any) {
+      navigationInProgress.current = false;
+      setIsProcessing(false);
+      console.error('Error al cerrar sesión:', error);
+      showAlert('Error', 'No se pudo cerrar sesión completamente', 'error');
       throw error;
     }
-  }, [safeNavigate]);
+  }, [showAlert]);
 
   return (
     <AuthContext.Provider value={{ 
       isAuthenticated, 
-      loading, 
+      loading,
+      isProcessing, 
       login, 
-      logout, 
-      safeNavigate 
+      logout
     }}>
       {children}
     </AuthContext.Provider>

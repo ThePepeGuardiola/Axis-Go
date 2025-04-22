@@ -215,3 +215,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center' 
     },
 });
+
+export default function Dashboard() {
+  // ... existing component code ...
+}
