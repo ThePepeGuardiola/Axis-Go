@@ -52,19 +52,26 @@ const MetPago = () => {
       </Pressable>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Métodos de Pago</Text>
-        <Pressable onPress={() => router.push('/CardFormScreen')}>
-          <Text style={styles.add}>Agregar tarjeta</Text>
+        <Text style={styles.title}>Tú cartera</Text>
+        <Pressable 
+          style={styles.addButton}
+          onPress={() => router.push('/CardFormScreen')}
+        >
+          <Text style={styles.addButtonText}>+ Agregar tarjeta</Text>
         </Pressable>
         
         {cards.map((card) => (
           <Pressable 
             key={card.id} 
+            style={styles.cardItem}
             onPress={() => handleCardPress(card)}
           >
-            <View style={styles.cardItem}>
-              <Text>{card.holder}</Text>
-              <Text>{card.number}</Text>
+            <View style={styles.cardInfo}>
+              <Text style={styles.cardHolder}>{card.holder}</Text>
+              <Text style={styles.cardNumber}>{card.number}</Text>
+            </View>
+            <View style={styles.cardActions}>
+              <Text style={styles.editText}>Editar</Text>
             </View>
           </Pressable>
         ))}
@@ -115,24 +122,58 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: "center",
+    padding: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-  },
-  add: {
-    fontWeight: "500",
     color: "#900020",
-    marginBottom: 20,
   },
-  cardItem: {
-    backgroundColor: "#f0f0f0",
+  addButton: {
+    backgroundColor: "#900020",
     padding: 15,
     borderRadius: 10,
-    marginBottom: 10,
-    width: 300,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  addButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  cardItem: {
+    backgroundColor: "#f8f8f8",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardInfo: {
+    flex: 1,
+  },
+  cardHolder: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  cardNumber: {
+    fontSize: 14,
+    color: "#666",
+  },
+  cardActions: {
+    marginLeft: 10,
+  },
+  editText: {
+    color: "#900020",
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
@@ -142,7 +183,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 15,
     padding: 20,
     width: '80%',
     alignItems: 'center',
@@ -159,6 +200,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF0000',
   },
   modalButtonText: {
+    fontSize: 16,
     color: 'white',
     fontWeight: 'bold',
   },

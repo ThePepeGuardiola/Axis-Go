@@ -55,3 +55,5 @@ profile: {
     justifyContent: 'center',
 },
 });
+
+export default BottomNav;

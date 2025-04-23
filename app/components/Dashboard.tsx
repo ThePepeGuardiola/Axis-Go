@@ -214,3 +214,15 @@ const styles = StyleSheet.create({
       justifyContent: 'center' 
     },
 });
+
+// Default export combining all components
+const Dashboard = () => (
+  <ScrollView>
+    <Welcome />
+    <WeatherSection />
+    <Categories />
+    <RecentSection />
+  </ScrollView>
+);
+
+export default Dashboard;
