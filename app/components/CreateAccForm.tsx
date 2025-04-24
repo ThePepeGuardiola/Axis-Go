@@ -33,21 +33,20 @@ const FormContainer: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 );
 
 const data = [
-  { label: '+1 (US)', value: 'Estados Unidos' },
-  { label: '+1 (CA)', value: 'Canadá' },
-  { label: '+52 (MX)', value: 'México' },
-  { label: '+55 (BR)', value: 'Brasil' },
-  { label: '+54 (AR)', value: 'Argentina' },
-  { label: '+56 (CL)', value: 'Chile' },
-  { label: '+57 (CO)', value: 'Colombia' },
-  { label: '+34 (ESP)', value: 'España' },
-  { label: '+33 (FR)', value: 'Francia' },
-  { label: '+1 (RD)', value: 'República Dominicana' },
+  { label: '+1', value: '+1' },
+  { label: '+52', value: '+52' },
+  { label: '+55', value: '+55' },
+  { label: '+54', value: '+54' },
+  { label: '+56', value: '+56' },
+  { label: '+57', value: '+57' },
+  { label: '+34', value: '+34' },
+  { label: '+33', value: '+33' },
 ];
 
 const data_1 = [
-  { label: 'Hombre', value: true },
-  { label: 'Mujer', value: false },
+  { label: 'Masculino', value: 'Masculino' },
+  { label: 'Femenino', value: 'Femenino' },
+  { label: 'Otro', value: 'Otro' },
 ];
 
 type VerificationScreenRouteProp = RouteProp<{ SignupForm: { email: string } }, 'SignupForm'>;
@@ -65,7 +64,7 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
   const [birthdate, setBirthdate] = useState('');
   const [phone, setPhone] = useState('');
   const [country_code, setCountry_code] = useState('');
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState<boolean | null>(null);
   
   const [loading, setLoading] = useState(false);
 
@@ -122,11 +121,10 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
         setLoading(false);
 
         if (response.ok) {
-            Alert.alert("Éxito", "Registro exitoso. Verifica tu correo.");
-            await AsyncStorage.multiSet(Object.entries(userData).map(([key, value]) => [key + "Registro", value ? value.toString() : ""]));
+            alert("Éxito" + "Registro exitoso. Verifica tu correo.");
             setRegistroCompletado(true);  // Marcamos que el registro fue exitoso
         } else {
-            Alert.alert("Error", data.message || "Hubo un problema con el registro.");
+            alert("Error" + data.message || "Hubo un problema con el registro.");
         }
     } catch (error) {
         setLoading(false);
@@ -143,6 +141,35 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
         }, 100);
     }
   }, [registroCompletado]);
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const keys = [
+          "usernameRegistro",
+          "emailRegistro",
+          "birthdateRegistro",
+          "phoneRegistro",
+          "country_codeRegistro",
+          "genderRegistro"
+        ];
+  
+        const valores = await AsyncStorage.multiGet(keys);
+        const data = Object.fromEntries(valores);
+  
+        if (data.usernameRegistro) setUsername(data.usernameRegistro);
+        if (data.emailRegistro) setEmail(data.emailRegistro);
+        if (data.birthdateRegistro) setBirthdate(data.birthdateRegistro);
+        if (data.phoneRegistro) setPhone(data.phoneRegistro);
+        if (data.country_codeRegistro) setCountry_code(data.country_codeRegistro);
+        if (data.genderRegistro) setGender(data.genderRegistro === "true");
+      } catch (error) {
+        console.error("Error cargando datos del formulario:", error);
+      }
+    };
+  
+    cargarDatos();
+  }, []);
 
   return (
     <FormContainer >
@@ -207,7 +234,7 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
             placeholder="Género"
             searchPlaceholder="Search..."
             onChange={item => {
-            setGender(item.label);
+            setGender(item.value);
             }}
           />
         </View>
