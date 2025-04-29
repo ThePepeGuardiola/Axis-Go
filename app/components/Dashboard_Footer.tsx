@@ -4,9 +4,11 @@ import { useAuth } from '../../context/Authcontext';
 import { useState } from 'react';
 import Svg, { Path } from 'react-native-svg';
 import { ROUTES, AppRoute } from '../../config/routes';
+import { useRouter } from 'expo-router';
 
 // Bottom navigation bar
 export const BottomNav = () => {
+  const router = useRouter();
   const { logout } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
   const slideAnim = useState(new Animated.Value(170))[0];
@@ -51,6 +53,20 @@ export const BottomNav = () => {
     setTimeout(() => {
       safeNavigate(path);
     }, 300);
+  };
+
+  const safeNavigate = (path: string) => {
+    try {
+      // Extract the route name from the path
+      const routeName = path.split('/').pop();
+      if (routeName) {
+        // Keep PerfilUsuario as is, convert others to lowercase
+        const finalRouteName = routeName === 'PerfilUsuario' ? routeName : routeName.toLowerCase();
+        router.replace(`/Auth/${finalRouteName}` as any);
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
   };
 
   return (
@@ -164,8 +180,4 @@ const styles = StyleSheet.create({
 
 export default function DashboardFooter() {
   return <BottomNav />;
-}
-
-function safeNavigate(path: string) {
-  throw new Error('Function not implemented.');
 }
