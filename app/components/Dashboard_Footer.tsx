@@ -62,7 +62,7 @@ export const BottomNav = () => {
       if (routeName) {
         // Keep PerfilUsuario as is, convert others to lowercase
         const finalRouteName = routeName === 'PerfilUsuario' ? routeName : routeName.toLowerCase();
-        router.replace(`/Auth/${finalRouteName}` as any);
+        router.push(`/Auth/${finalRouteName}` as any);
       }
     } catch (error) {
       console.error('Navigation error:', error);
