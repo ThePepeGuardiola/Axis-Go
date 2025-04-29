@@ -5,8 +5,8 @@ import { router } from 'expo-router';
 // Barra de navegación inferior
 export const BottomNav = () => (
     <View style={styles.bottomNav}>
-      <NavButton1 onPress={() => {}} iconPath="M2.92542 14.8235L13.3723 4.37659C13.8849 3.86403..." width={29} height={29} />
-      <NavButton2 onPress={() => {}} iconPath="M13.6945 4.90534C13.9187 4.36637..." width={29} height={29} />
+      <NavButton1 onPress={() => {router.push('/(tabs)/home')}} iconPath="M2.92542 14.8235L13.3723 4.37659C13.8849 3.86403..." width={29} height={29} />
+      <NavButton2 onPress={() => {router.push('/(tabs)/Trips')}} iconPath="M13.6945 4.90534C13.9187 4.36637..." width={29} height={29} />
       <TouchableOpacity style={styles.navItem} onPress={() => {}}>
         <View>
           <Image
