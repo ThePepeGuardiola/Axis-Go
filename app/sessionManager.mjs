@@ -7,7 +7,7 @@ export const saveSessionToken = async (token) => {
     try {
         await AsyncStorage.setItem(SESSION_KEY, token);
     } catch (error) {
-        console.error("Error al guardar el token de sesión:", error);
+        Alert.alert("Error al guardar el token de sesión:", error);
     }
 };
 
@@ -16,7 +16,7 @@ export const getSessionToken = async () => {
     try {
         return await AsyncStorage.getItem(SESSION_KEY);
     } catch (error) {
-        console.error("Error al obtener el token de sesión:", error);
+        Alert.alert("Error al obtener el token de sesión:", error);
         return null;
     }
 };
@@ -26,7 +26,7 @@ export const clearSessionToken = async () => {
     try {
         await AsyncStorage.removeItem(SESSION_KEY);
     } catch (error) {
-        console.error("Error al eliminar el token de sesión:", error);
+        Alert.alert("Error al eliminar el token de sesión:", error);
     }
 };
 
@@ -52,7 +52,7 @@ export const validateSession = async () => {
             isVerified: data.is_verified // Si la cuenta está verificada
         };
     } catch (error) {
-        console.error("Error al validar la sesión:", error);
+        Alert.alert("Error al validar la sesión:", error);
         return { isAuthenticated: false, isVerified: false };
     }
 };
@@ -68,7 +68,7 @@ export const logout = async () => {
             headers: { "Authorization": `Bearer ${token}` }
         });
     } catch (error) {
-        console.error("Error al cerrar sesión:", error);
+        Alert.alert("Error al cerrar sesión:", error);
     }
 
     await clearSessionToken();

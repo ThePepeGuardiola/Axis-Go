@@ -1,11 +1,9 @@
-import { router } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, } from "react-native";
-import { useRouter } from 'expo-router';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dropdown } from 'react-native-element-dropdown';
+import { router, useRouter } from "expo-router";
+import BirthdatePicker from '../../components/DateTime';
 
 /* ============================
     Componentes
@@ -49,22 +47,19 @@ const data_1 = [
   { label: 'Otro', value: 'Otro' },
 ];
 
-type VerificationScreenRouteProp = RouteProp<{ SignupForm: { email: string } }, 'SignupForm'>;
-type VerificationScreenNavigationProp = StackNavigationProp<any>;
-
 // Formulario de registro
-const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp, navigation: VerificationScreenNavigationProp }) => {
-  const router = useRouter();
-  
+const SignupForm = () => {
   // Estados para los inputs
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [birthdate, setBirthdate] = useState('');
+  const [birthdate, setBirthdate] = useState<Date | undefined>(undefined);
   const [phone, setPhone] = useState('');
   const [country_code, setCountry_code] = useState('');
   const [gender, setGender] = useState<boolean | null>(null);
+
+  const router = useRouter();
   
   const [loading, setLoading] = useState(false);
 
@@ -75,12 +70,12 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
   // Función de validación y registro
   const handleSignup = async () => {
     if (!username || !email || !password || !confirmPassword || !birthdate || !gender) {
-        Alert.alert("Error", "Todos los campos son obligatorios.");
+        alert("Error: " + "Todos los campos son obligatorios.");
         return;
     }
 
     if (password !== confirmPassword) {
-        Alert.alert("Error", "Las contraseñas no coinciden.");
+        alert("Error: " + "Las contraseñas no coinciden.");
         return;
     }
 
@@ -91,25 +86,15 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
     setLoading(true);
 
     try {
-        await AsyncStorage.multiSet(
-          Object.entries(userData).map(([key, value]) => [
-            key + "Registro",
-            value ? value.toString() : ""
-          ])
-        );
-
-      // Verificar si los datos se guardaron correctamente
-      const checkStorage = await AsyncStorage.multiGet([
-        "emailRegistro",
-        "passwordRegistro",
-        "usernameRegistro",
-        "birthdateRegistro",
-        "phoneRegistro",
-        "country_codeRegistro",
-        "genderRegistro"
-      ]);
-
-      console.log(checkStorage)
+      await AsyncStorage.multiSet(
+        Object.entries(userData).map(([key, value]) => {
+          if (key === "birthdate" && value instanceof Date) {
+            // Formateamos la fecha correctamente
+            return [key + "Registro", value.toISOString().split('T')[0]];
+          }
+          return [key + "Registro", value ? value.toString() : ""];
+        })
+      );
 
       const response = await fetch(`${API_URL}/api/register`, {
           method: "POST",
@@ -121,15 +106,14 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
         setLoading(false);
 
         if (response.ok) {
-            alert("Éxito" + "Registro exitoso. Verifica tu correo.");
+            alert("Éxito: " + "Registro exitoso. Verifica tu correo.");
             setRegistroCompletado(true);  // Marcamos que el registro fue exitoso
         } else {
-            alert("Error" + data.message || "Hubo un problema con el registro.");
+            alert("Error: " + data.message || "Hubo un problema con el registro.");
         }
     } catch (error) {
         setLoading(false);
-        Alert.alert("Error", "No se pudo conectar con el servidor.");
-        console.error("❌ Error en fetch:", error);
+        alert("Error: " + "No se pudo conectar con el servidor.");
     }
   };
 
@@ -137,7 +121,7 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
   useEffect(() => {
     if (registroCompletado) {
         setTimeout(() => {
-            router.replace("/VerificationScreen");
+          router.push("/(tabs)/VerificationScreen");
         }, 100);
     }
   }, [registroCompletado]);
@@ -159,17 +143,38 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
   
         if (data.usernameRegistro) setUsername(data.usernameRegistro);
         if (data.emailRegistro) setEmail(data.emailRegistro);
-        if (data.birthdateRegistro) setBirthdate(data.birthdateRegistro);
+        if (data.birthdateRegistro) { const date = new Date(data.birthdateRegistro);
+          if (!isNaN(date.getTime())) {
+            setBirthdate(date);
+          } else {
+            setBirthdate(undefined);
+          }
+        } else {
+          setBirthdate(undefined);
+        }
         if (data.phoneRegistro) setPhone(data.phoneRegistro);
         if (data.country_codeRegistro) setCountry_code(data.country_codeRegistro);
         if (data.genderRegistro) setGender(data.genderRegistro === "true");
-      } catch (error) {
-        console.error("Error cargando datos del formulario:", error);
+      } catch (error: any) {
+        alert("Error cargando datos del formulario: " + error);
       }
     };
   
     cargarDatos();
   }, []);
+
+  // Función para formatear el input de telefono
+  function formatPhoneNumber(value: string) {
+    // Elimina todo lo que no sea número
+    const cleaned = value.replace(/\D/g, '');
+    // Aplica el formato ###-###-####
+    const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
+    if (!match) return value;
+    let formatted = match[1];
+    if (match[2]) formatted += '-' + match[2];
+    if (match[3]) formatted += '-' + match[3];
+    return formatted;
+  }
 
   return (
     <FormContainer >
@@ -239,17 +244,7 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
           />
         </View>
 
-        <View  style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '47%'}}>
-          <TextInput
-            placeholder="Nacimiento"
-            style={inputStyles.input}
-            value={birthdate}
-            onChangeText={setBirthdate}
-            keyboardType="numeric"
-            autoCapitalize="none"
-            placeholderTextColor="#777"
-          />
-        </View>
+        <BirthdatePicker value={birthdate} onChange={setBirthdate} />
       </View>
 
       <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap'}}>
@@ -279,14 +274,14 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
               placeholder="Número tel."
               style={inputStyles.input}
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={text => setPhone(formatPhoneNumber(text))}
               keyboardType="numeric"
               placeholderTextColor="#777"
             />
           </View>
       </View>
 
-      <TouchableOpacity style={buttonStyles.button} onPress={handleSignup}>
+      <TouchableOpacity style={buttonStyles.button} onPress={handleSignup} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={buttonStyles.buttonText}>Registrarse</Text>}
       </TouchableOpacity>
     </FormContainer>
@@ -294,22 +289,24 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
 };
 
 // Componente de subtexto
-const Subtext = () => (
-  <View style={subtextStyles.container}>
-    <TouchableOpacity onPress={() => router.push("/Login")}>
-      <Text style={subtextStyles.textBold}>Ya tienes una cuenta</Text>
-    </TouchableOpacity>
-  </View>
-);
+const Subtext = () => {
+  return (
+    <View style={subtextStyles.container}>
+      <TouchableOpacity onPress={() => router.push("/(tabs)/Login")}>
+        <Text style={subtextStyles.textBold}>Ya tienes una cuenta</Text>
+      </TouchableOpacity>
+    </View>
+  )
+};
 
 // Componente principal
-const CreateAccForm = ({ route, navigation }: { route: VerificationScreenRouteProp, navigation: VerificationScreenNavigationProp }) => (
+const CreateAccForm = (props: any) => (
   <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingVertical: 40, }}>
     <View style={{ height: 100, marginBottom: 30 }}>
       <SignupHeader />
     </View>
     <ScrollView>
-      <SignupForm route={route} navigation={navigation} />
+      <SignupForm />
       <Subtext />
     </ScrollView>
   </View>

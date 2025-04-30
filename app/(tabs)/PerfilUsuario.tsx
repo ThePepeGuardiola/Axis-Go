@@ -7,7 +7,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import IconInput from '@/components/IconInput';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const data = [
     { label: '+1', value: '+1' },
@@ -27,7 +27,7 @@ const data_1 = [
 ];
 
 const ProfileScreen = () => {
-    const navigation = useNavigation();
+    const router = useRouter();
     const DEFAULT_IMAGE = require('../../assets/images/user-icon.png');
     interface Profile {
         username: string;
@@ -91,8 +91,6 @@ const ProfileScreen = () => {
         const match = /\.(\w+)$/.exec(filename ?? '');
         const type = match ? `image/${match[1]}` : `image`;
 
-        console.log("📸 URI seleccionada:", imageUri);
-
         const formData = new FormData();
         formData.append('image', {
             uri: localUri,
@@ -117,7 +115,6 @@ const ProfileScreen = () => {
 
         if (data.imageUrl) {
             setProfileImage({ uri: data.imageUrl });
-            console.log('✅ Imagen subida correctamente');
         }
 
         await axios.put(
@@ -128,12 +125,9 @@ const ProfileScreen = () => {
                 },
             }
         );
-        
-        console.log('✅ Imagen subida y URL actualizada en la base de datos');
 
         } catch (err: any) {
             alert('Error subiendo la imagen: ' + err.message);
-            console.error('Error subiendo la imagen:', err);
         } finally {
             setIsUploadingImage(false);
         }
@@ -167,11 +161,9 @@ const ProfileScreen = () => {
     
                     if (data.imageUrl) {
                         setProfileImage({ uri: data.imageUrl });
-                        console.log('✅ Imagen subida correctamente (Web)');
                     }
                 } catch (err: any) {
                     alert('Error subiendo la imagen: ' + err.message);
-                    console.error('Error subiendo la imagen (web):', err);
                 }
             };
     
@@ -234,7 +226,6 @@ const ProfileScreen = () => {
 
             if (!storedToken) {
                 alert("No se encontró el token de sesión");
-                console.error("No se encontró el token de sesión");
                 return;
             }
 
@@ -259,15 +250,11 @@ const ProfileScreen = () => {
 
                 const genderLabel = profileData.gender === 'Masculino' ? 'Masculino' : profileData.gender === 'Femenino' ? 'Femenino' : 'Otro';
 
-                console.log(genderLabel);
-
                 setProfile({
                     ...profileData,
                     gender: genderLabel,
                     country_code: profileData.country_code || '',
                 });
-
-                console.log('Perfil cargado:', res.data);
 
                 setProfileImage(
                     profileData.image_url?.startsWith('http')
@@ -277,8 +264,7 @@ const ProfileScreen = () => {
 
                 setLoading(false);
             } catch (error: any) {
-                alert('Error al cargar el perfil:' + error.message);
-                console.error('Error al cargar el perfil:', error);
+                alert('Error al cargar el perfil: ' + error.message);
             }
         };
 
@@ -329,7 +315,6 @@ const ProfileScreen = () => {
         
         alert('Perfil actualizado correctamente');
         } catch (error) {
-            console.error('Error al guardar el perfil:', error);
             alert('Hubo un problema al guardar los cambios');
         }
     };
@@ -340,7 +325,7 @@ const ProfileScreen = () => {
                 {loading ? <ActivityIndicator size="large" style={{marginTop: 20}} /> : (
                     <>
                         <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-                            <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }} onPress={() => navigation.goBack()}>
+                            <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }} onPress={() => router.back()}>
                                 <Image source={require('../../assets/icons/arrow.png')} />
                                 <Text style={{ fontSize: 18, fontWeight: 700 }}>Perfil</Text>
                             </Pressable>

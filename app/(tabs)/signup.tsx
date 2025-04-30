@@ -48,11 +48,11 @@ const MySvgComponent = () => (
   </Svg>
 );
 
-export default function App(props: { route: any; navigation: any }) {
+export default function Signup(props: any) {
   return (
     <View style={styles.container}>
       <MySvgComponent />
-      <CreateAccForm route={props.route} navigation={props.navigation} />
+      <CreateAccForm {...props} />
       <StatusBar style="auto" />
     </View>
   );
