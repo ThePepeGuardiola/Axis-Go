@@ -7,7 +7,6 @@ interface IconButtonProps {
     onPress: () => void;
     iconPath: string;
   }
-
 interface IconButtonProps {
   onPress: () => void;
   iconPath: string;
@@ -74,4 +73,5 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
     iconPlaceholder: {
         padding: 10 
     }
-    });
+  }
+);

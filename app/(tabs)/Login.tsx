@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Pressable, View, StyleSheet, Text, TextInput, Image, ImageBackground } from 'react-native';
+import { Pressable, View, StyleSheet, Text, TextInput, Image } from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import Background from '../../components/Background';
 import { router } from 'expo-router';
@@ -8,12 +8,10 @@ import { router } from 'expo-router';
 export default function Home() {
 
     //Input Focus
-    
     const [isFocused, setIsFocused] = useState(false);
     const [isFocused_1, setIsFocused_1] = useState(false);
 
     //Pressable Focus
-
     const [onPressIn, OnpressOut] = useState(false);
     const [onPressIn_1, OnpressOut_1] = useState(false);
     const [onPressIn_2, OnpressOut_2] = useState(false);
@@ -127,7 +125,8 @@ export default function Home() {
                 </View>
             </SafeAreaView>
         </SafeAreaProvider>
-)}
+    )
+};
 
 const styles = StyleSheet.create({
     container: {

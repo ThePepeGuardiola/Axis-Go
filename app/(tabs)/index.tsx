@@ -4,14 +4,13 @@ import { StyleSheet, View, Image, Pressable, Text } from "react-native";
 
 export default function App() {
     return(
-
         
         <View style={styles.container}>
             
             <StatusBar style="auto"/>
 
-            {/* IMAGES */}
 
+            {/* IMAGES */}
 
             <Image
                 source={require('@/assets/images/welcome-image.png')} 
@@ -22,8 +21,8 @@ export default function App() {
                 style={styles.backimage}
                 />
 
-            {/* TEXT */}
 
+            {/* TEXT */}
 
             <Text style={styles.mtext}>Descubre tu ruta de transporte ideal aquí.</Text>
 
@@ -31,7 +30,6 @@ export default function App() {
 
 
         {/* BUTTONS */}
-
 
         <View style={styles.logbuttons}>
             <Pressable style={styles.button}>
@@ -124,5 +122,4 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-
 });
