@@ -22,4 +22,3 @@ function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRoute
     }
   }, [pathname]);
 }
-

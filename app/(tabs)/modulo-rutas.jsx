@@ -3,7 +3,6 @@ import { GoogleMap, LoadScriptNext, Marker, Polyline, InfoWindow } from "@react-
 import { StyleSheet, View, Text, TouchableOpacity, Image, Animated, TextInput } from "react-native";
 import { router } from 'expo-router';
 import axios from 'axios';
-import { GOOGLE_MAPS_APIKEY } from '@env';
 
 const libraries = ["geometry", "places"];
 
@@ -331,7 +330,7 @@ const App = () => {
       </Animated.View>
 
       <LoadScriptNext 
-        googleMapsApiKey={GOOGLE_MAPS_APIKEY}
+        googleMapsApiKey={process.env.EXPO_PUBLIC_GOOGLE_MAPS_APIKEY}
         libraries={libraries}
       >
         <GoogleMap
