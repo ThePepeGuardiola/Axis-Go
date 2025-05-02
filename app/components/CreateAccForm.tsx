@@ -1,9 +1,14 @@
+import { router } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, } from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Pressable, Modal, } from "react-native";
+import { useRouter } from 'expo-router';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Dropdown } from 'react-native-element-dropdown';
-import { router, useRouter } from "expo-router";
-import BirthdatePicker from '../../components/DateTime';
+import { useAlert } from '@/context/AlertContext'; 
+import { AntDesign } from "@expo/vector-icons";
+import { Calendar, LocaleConfig } from 'react-native-calendars'; 
 
 /* ============================
     Componentes
@@ -47,35 +52,41 @@ const data_1 = [
   { label: 'Otro', value: 'Otro' },
 ];
 
+type VerificationScreenRouteProp = RouteProp<{ SignupForm: { email: string } }, 'SignupForm'>;
+type VerificationScreenNavigationProp = StackNavigationProp<any>;
+
 // Formulario de registro
-const SignupForm = () => {
+const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp, navigation: VerificationScreenNavigationProp }) => {
+  const router = useRouter();
+  
   // Estados para los inputs
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [birthdate, setBirthdate] = useState<Date | undefined>(undefined);
+  const [birthdate, setBirthdate] = useState('');
   const [phone, setPhone] = useState('');
   const [country_code, setCountry_code] = useState('');
   const [gender, setGender] = useState<boolean | null>(null);
-
-  const router = useRouter();
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
   
   const [loading, setLoading] = useState(false);
 
   const API_URL = 'http://localhost:5050';
 
   const [registroCompletado, setRegistroCompletado] = useState(false);
+  const { showAlert } = useAlert();
   
   // Función de validación y registro
   const handleSignup = async () => {
     if (!username || !email || !password || !confirmPassword || !birthdate || !gender) {
-        alert("Error: " + "Todos los campos son obligatorios.");
+        showAlert("", "Todos los campos son obligatorios.", "error");
         return;
     }
 
     if (password !== confirmPassword) {
-        alert("Error: " + "Las contraseñas no coinciden.");
+        showAlert("","Las contraseñas no coinciden.","error");
         return;
     }
 
@@ -86,15 +97,25 @@ const SignupForm = () => {
     setLoading(true);
 
     try {
-      await AsyncStorage.multiSet(
-        Object.entries(userData).map(([key, value]) => {
-          if (key === "birthdate" && value instanceof Date) {
-            // Formateamos la fecha correctamente
-            return [key + "Registro", value.toISOString().split('T')[0]];
-          }
-          return [key + "Registro", value ? value.toString() : ""];
-        })
-      );
+        await AsyncStorage.multiSet(
+          Object.entries(userData).map(([key, value]) => [
+            key + "Registro",
+            value ? value.toString() : ""
+          ])
+        );
+
+      // Verificar si los datos se guardaron correctamente
+      const checkStorage = await AsyncStorage.multiGet([
+        "emailRegistro",
+        "passwordRegistro",
+        "usernameRegistro",
+        "birthdateRegistro",
+        "phoneRegistro",
+        "country_codeRegistro",
+        "genderRegistro"
+      ]);
+
+      console.log(checkStorage)
 
       const response = await fetch(`${API_URL}/api/register`, {
           method: "POST",
@@ -106,22 +127,44 @@ const SignupForm = () => {
         setLoading(false);
 
         if (response.ok) {
-            alert("Éxito: " + "Registro exitoso. Verifica tu correo.");
+            showAlert("","Registro exitoso. Verifica tu correo.","success");
             setRegistroCompletado(true);  // Marcamos que el registro fue exitoso
         } else {
-            alert("Error: " + data.message || "Hubo un problema con el registro.");
+            showAlert("",data.error || "Hubo un problema con el registro.","error");
         }
     } catch (error) {
         setLoading(false);
-        alert("Error: " + "No se pudo conectar con el servidor.");
+        showAlert("","No se pudo conectar con el servidor.", "error");
+        console.error("❌ Error en fetch:", error);
     }
+  };
+
+  const handleDateSelect = (day: any) => {
+    console.log("📅 Fecha seleccionada:", day.dateString);
+    const selectedDate = day.dateString;
+
+    setBirthdate(new Date(selectedDate).toLocaleDateString("CA-en"));
+
+    setMarkedDates({
+        [selectedDate]: {
+            selected: true,
+            selectedColor: '#900020',
+            selectedTextColor: 'white'
+        }
+    });
+
+    setTimeout(() => setShowCalendarModal(false), 300);
+  };
+
+  const openCalendar = () => {
+    setShowCalendarModal(true);
   };
 
   // Efecto para redirigir cuando el registro es exitoso
   useEffect(() => {
     if (registroCompletado) {
         setTimeout(() => {
-          router.push("/(tabs)/VerificationScreen");
+            router.replace("/VerificationScreen");
         }, 100);
     }
   }, [registroCompletado]);
@@ -143,38 +186,17 @@ const SignupForm = () => {
   
         if (data.usernameRegistro) setUsername(data.usernameRegistro);
         if (data.emailRegistro) setEmail(data.emailRegistro);
-        if (data.birthdateRegistro) { const date = new Date(data.birthdateRegistro);
-          if (!isNaN(date.getTime())) {
-            setBirthdate(date);
-          } else {
-            setBirthdate(undefined);
-          }
-        } else {
-          setBirthdate(undefined);
-        }
+        if (data.birthdateRegistro) setBirthdate(data.birthdateRegistro);
         if (data.phoneRegistro) setPhone(data.phoneRegistro);
         if (data.country_codeRegistro) setCountry_code(data.country_codeRegistro);
         if (data.genderRegistro) setGender(data.genderRegistro === "true");
-      } catch (error: any) {
-        alert("Error cargando datos del formulario: " + error);
+      } catch (error) {
+        console.error("Error cargando datos del formulario:", error);
       }
     };
   
     cargarDatos();
   }, []);
-
-  // Función para formatear el input de telefono
-  function formatPhoneNumber(value: string) {
-    // Elimina todo lo que no sea número
-    const cleaned = value.replace(/\D/g, '');
-    // Aplica el formato ###-###-####
-    const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
-    if (!match) return value;
-    let formatted = match[1];
-    if (match[2]) formatted += '-' + match[2];
-    if (match[3]) formatted += '-' + match[3];
-    return formatted;
-  }
 
   return (
     <FormContainer >
@@ -244,7 +266,75 @@ const SignupForm = () => {
           />
         </View>
 
-        <BirthdatePicker value={birthdate} onChange={setBirthdate} />
+        <View  style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '47%'}}>
+          <Pressable onPress={openCalendar} style={inputStyles.input}>
+            <Text style={{ color: "#777", fontSize: 16, paddingTop: 22, paddingLeft: 10 }}>
+              {birthdate}
+            </Text>
+          </Pressable>
+        </View>
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showCalendarModal}
+          onRequestClose={() => setShowCalendarModal(false)}
+        >
+          <Pressable
+              style={styles.modalOverlay}
+              onPress={() => setShowCalendarModal(false)}
+          >
+              <View style={styles.calendarModal}>
+                  <Pressable style={styles.calendarContainer} onPress={e => e.stopPropagation()}>
+                      <View style={styles.calendarHeader}>
+                          <Text style={styles.calendarTitle}>Selecciona tu Fecha de Nacimiento</Text>
+                          <Pressable onPress={() => setShowCalendarModal(false)} style={styles.closeButton}>
+                              <AntDesign name="close" size={24} color="#333" />
+                          </Pressable>
+                      </View>
+                      <Calendar
+                          current={undefined}
+                          minDate="1900-01-01"
+                          maxDate={new Date().toISOString().split('T')[0]}
+                          onDayPress={handleDateSelect}
+                          markedDates={markedDates}
+                          style={styles.calendar}
+                          theme={{
+                              backgroundColor: '#ffffff',
+                              calendarBackground: '#ffffff',
+                              textSectionTitleColor: '#333333',
+                              textSectionTitleDisabledColor: '#d9e1e8',
+                              selectedDayBackgroundColor: '#900020',
+                              selectedDayTextColor: '#ffffff',
+                              todayTextColor: '#900020',
+                              dayTextColor: '#2d4150',
+                              textDisabledColor: '#d9e1e8',
+                              dotColor: '#900020',
+                              selectedDotColor: '#ffffff',
+                              arrowColor: '#900020',
+                              disabledArrowColor: '#d9e1e8',
+                              monthTextColor: '#333333',
+                              indicatorColor: '#900020',
+                              textDayFontWeight: '300',
+                              textMonthFontWeight: 'bold',
+                              textDayHeaderFontWeight: '600',
+                              textDayFontSize: 16,
+                              textMonthFontSize: 16,
+                              textDayHeaderFontSize: 14
+                          }}
+                      />
+                      <View style={styles.calendarActions}>
+                          <Pressable
+                              style={styles.calendarButton}
+                              onPress={() => setShowCalendarModal(false)}
+                          >
+                              <Text style={styles.calendarButtonText}>Cerrar</Text>
+                          </Pressable>
+                      </View>
+                  </Pressable>
+              </View>
+          </Pressable>
+      </Modal>
       </View>
 
       <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap'}}>
@@ -274,14 +364,14 @@ const SignupForm = () => {
               placeholder="Número tel."
               style={inputStyles.input}
               value={phone}
-              onChangeText={text => setPhone(formatPhoneNumber(text))}
+              onChangeText={setPhone}
               keyboardType="numeric"
               placeholderTextColor="#777"
             />
           </View>
       </View>
 
-      <TouchableOpacity style={buttonStyles.button} onPress={handleSignup} disabled={loading}>
+      <TouchableOpacity style={buttonStyles.button} onPress={handleSignup}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={buttonStyles.buttonText}>Registrarse</Text>}
       </TouchableOpacity>
     </FormContainer>
@@ -289,24 +379,22 @@ const SignupForm = () => {
 };
 
 // Componente de subtexto
-const Subtext = () => {
-  return (
-    <View style={subtextStyles.container}>
-      <TouchableOpacity onPress={() => router.push("/(tabs)/Login")}>
-        <Text style={subtextStyles.textBold}>Ya tienes una cuenta</Text>
-      </TouchableOpacity>
-    </View>
-  )
-};
+const Subtext = () => (
+  <View style={subtextStyles.container}>
+    <TouchableOpacity onPress={() => router.push("/Login")}>
+      <Text style={subtextStyles.textBold}>Ya tienes una cuenta</Text>
+    </TouchableOpacity>
+  </View>
+);
 
 // Componente principal
-const CreateAccForm = (props: any) => (
+const CreateAccForm = ({ route, navigation }: { route: VerificationScreenRouteProp, navigation: VerificationScreenNavigationProp }) => (
   <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingVertical: 40, }}>
     <View style={{ height: 100, marginBottom: 30 }}>
       <SignupHeader />
     </View>
     <ScrollView>
-      <SignupForm />
+      <SignupForm route={route} navigation={navigation} />
       <Subtext />
     </ScrollView>
   </View>
@@ -355,5 +443,95 @@ const styles = StyleSheet.create({
     placeholderStyle: { fontSize: 16 },
     selectedTextStyle: { fontSize: 16 },
     iconStyle: { width: 20, height: 20 },
-    inputSearchStyle: { height: 40, fontSize: 16 }
+    inputSearchStyle: { height: 40, fontSize: 16 },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    calendarModal: {
+        width: '100%',
+        maxWidth: 500,
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    calendarContainer: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 4,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 6,
+        },
+        shadowOpacity: 0.37,
+        shadowRadius: 7.49,
+        elevation: 12,
+    },
+    calendarHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    calendarTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333',
+    },
+    closeButton: {
+        padding: 4,
+    },
+    calendar: {
+        borderRadius: 10,
+        overflow: 'hidden',
+        marginTop: 4,
+        marginBottom: 10,
+    },
+    calendarActions: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        padding: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#f0f0f0',
+    },
+    calendarButton: {
+        backgroundColor: '#900020',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    calendarButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    webDateInput: {
+        flex: 1,
+        height: '100%',
+        borderWidth: 0,
+        backgroundColor: 'transparent',
+        fontSize: 16,
+        color: '#333',
+        outline: 'none',
+        fontFamily: 'inherit',
+    },
+    dateInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 55,
+        width: '100%',
+        borderWidth: 1.5,
+        borderColor: '#bebebe',
+        backgroundColor: 'white',
+        borderRadius: 12,
+        paddingHorizontal: 15,
+        marginVertical: 5,
+    }
 });
