@@ -14,6 +14,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useNavigation  } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAlert } from '@/context/AlertContext';
 
 const CELL_COUNT = 7;
 
@@ -42,6 +43,7 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
         value: verificationCode,
         setValue: setVerificationCode,
     });
+    const { showAlert } = useAlert();
 
     const [userData, setUserData] = useState<{ [key: string]: string | null } | null>(null);
 
@@ -82,7 +84,7 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
     // Función para verificar el código
     const handleVerifyCode = async () => {
         if (verificationCode.length !== CELL_COUNT) {
-            Alert.alert("Código incompleto", "Por favor, ingresa el código completo.");
+            showAlert("", "Por favor, ingresa el código completo.", "error");
             return;
         }
 
@@ -105,17 +107,17 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
             const data = await response.json();
     
             if (response.ok) {
-                Alert.alert("Éxito", "Código verificado correctamente.");
+                showAlert("", "Código verificado correctamente.", "success");
                 setTimeout(async () => {
                     await handleLogin();
                 }, 100);
             } else {
-                Alert.alert("Error", data.message || "Error en la verificación del código");
+                showAlert("", data.msg || "Error en la verificación del código", "error");
                 return;
             }
         } catch (error) {
             console.error("❌ Error en la verificación:", error);
-            Alert.alert("Error", "No se pudo verificar el código.");
+            showAlert("", "No se pudo verificar el código.", "error");
         } finally {
             setIsVerifying(false);
         }
@@ -135,15 +137,14 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
             });
 
             const data = await response.json();
-            Alert.alert("Respuesta del servidor", JSON.stringify(data, null, 2));
 
             if (response.ok) {
-                Alert.alert("Código reenviado", "Revisa tu correo para el nuevo código.");
+                showAlert("", "Revisa tu correo para el nuevo código.", "success");
             } else {
-                Alert.alert("Error", data.message || "No se pudo reenviar el código.");
+                showAlert("", data.message || "No se pudo reenviar el código.", "error");
             }
         } catch (error) {
-            Alert.alert("Error", "Ocurrió un problema al reenviar el código.");
+            showAlert("", "Ocurrió un problema al reenviar el código.", "error");
         }
         setIsResending(false);
     };
@@ -157,7 +158,7 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
 
         if (!storedEmail) {
             console.error("❌ Email no definido en handleLogin");
-            Alert.alert("Error", "No se pudo obtener el email.");
+            showAlert("", "No se pudo obtener el email.", "error");
             return;
         }
 
@@ -172,7 +173,7 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
         if (response.ok) {
             await AsyncStorage.setItem("session_token", data.session_token);
 
-            Alert.alert("Inicio de sesión exitoso", "Bienvenido a Axis Go");
+            showAlert("", "Inicio de sesión exitoso. Bienvenido a Axis Go", "success");
             
             if (navigation) {
                 navigation.navigate('(tabs)/home');
@@ -181,11 +182,11 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
             }
         } else {
             console.error("❌ Error en login:", data.message);
-            Alert.alert("Error", data.message || "No se pudo iniciar sesión.");
+            showAlert("", data.message || "No se pudo iniciar sesión.", "error");
         }
     } catch (error) {
         console.error("❌ Error en handleLogin:", error);
-        Alert.alert("Error", "Ocurrió un problema al iniciar sesión.");
+        showAlert("Error", "Ocurrió un problema al iniciar sesión.");
     }
 };
 
@@ -204,10 +205,10 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
                 await AsyncStorage.removeItem('session_token');
                 navigation.replace("Login"); // Redirigir al login
             } else {
-                Alert.alert("Error", "No se pudo cerrar sesión.");
+                showAlert("", "No se pudo cerrar sesión.", "error");
             }
         } catch (error) {
-            Alert.alert("Error", "Ocurrió un problema al cerrar sesión.");
+            showAlert("", "Ocurrió un problema al cerrar sesión.", "error");
         }
     };
 
