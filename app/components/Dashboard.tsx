@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -23,7 +24,7 @@ export const WeatherSection = () => (
                 fill="#8D8D8D"
               />
             </Svg>
-       Santo Domingo, DN
+      Santo Domingo, DN
     </Text>
     <Image source={require('../../assets/images/sun.png')} style={{ position: 'absolute', left: '85%' }} />
   </View>

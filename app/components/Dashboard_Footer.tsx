@@ -16,7 +16,7 @@ export const BottomNav = () => (
         </View>
       </TouchableOpacity>
       <NavButton3 onPress={() => {router.push('/metPago')}} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
-      <TouchableOpacity style={styles.navItem} onPress={() => {}}>
+      <TouchableOpacity style={styles.navItem} onPress={() => {router.push('/(tabs)/PerfilUsuario')}}>
         <View style={styles.profile}>
           <Image
             source={require('../../assets/images/profilep.png')}

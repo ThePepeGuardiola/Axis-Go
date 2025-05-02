@@ -1,6 +1,7 @@
 import { Stack, usePathname, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { AlertProvider } from '../context/AlertContext';
 
 export default function Layout() {
   const pathname = usePathname();
@@ -9,10 +10,10 @@ export default function Layout() {
   redirectIfRootPath(pathname, router);
 
   return (
-    <>
+    <AlertProvider>
       <StatusBar hidden />
       <Stack screenOptions={{ headerShown: false }} />
-    </>
+    </AlertProvider>
   );
 }
 function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRouter>) {
@@ -22,4 +23,3 @@ function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRoute
     }
   }, [pathname]);
 }
-
