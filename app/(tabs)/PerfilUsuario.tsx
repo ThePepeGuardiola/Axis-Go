@@ -100,8 +100,6 @@ const ProfileScreen = () => {
         const match = /\.(\w+)$/.exec(filename ?? '');
         const type = match ? `image/${match[1]}` : `image`;
 
-        console.log("📸 URI seleccionada:", imageUri);
-
         const formData = new FormData();
         formData.append('image', {
             uri: localUri,
@@ -393,7 +391,7 @@ const ProfileScreen = () => {
                 {loading ? <ActivityIndicator size="large" style={{ marginTop: 20 }} /> : (
                     <>
                         <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-                            <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }} onPress={() => navigation.goBack()}>
+                            <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }} onPress={() => router.back()}>
                                 <Image source={require('../../assets/icons/arrow.png')} />
                                 <Text style={{ fontSize: 18, fontWeight: 700 }}>Perfil</Text>
                             </Pressable>
