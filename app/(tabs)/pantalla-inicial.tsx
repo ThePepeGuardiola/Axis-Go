@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, Image, Pressable, Text } from "react-native";
 
@@ -36,9 +37,16 @@ export default function App() {
                 </Pressable>
 
 
-                <Pressable style={styles.button2}>
-                        <Text style={styles.logtext2}>Register</Text>
-                </Pressable>
+        <View style={styles.logbuttons}>
+               <Pressable style={styles.button} onPress={() => {router.push('/Login')}} >
+                       <Text style={styles.logtext}>Login</Text>
+               </Pressable>
+
+
+               <Pressable style={styles.button2} onPress={() => {router.push('/signup')}}>
+                       <Text style={styles.logtext2}>Register</Text>
+               </Pressable>
+        </View>
             </View>
         </View>
 )};

@@ -71,5 +71,6 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
     iconPlaceholder: {
         padding: 10 
     }
-  }
-);
+    });
+
+export default Headers;
