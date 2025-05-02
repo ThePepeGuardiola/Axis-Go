@@ -19,7 +19,6 @@ import { BottomNav } from '../components/Dashboard_Footer';
 import { useTrips } from '../trips/TripsContext';
 import { saveTrip } from '../trips/tripService';
 
-
 // Tipos para los viajes
 type Trip = {
   id: string;
@@ -109,68 +108,124 @@ const TripsScreen: React.FC = () => {
   };
 
   // Función para obtener el tiempo estimado usando Google Directions API
+
+  // Example client-side code
   const fetchEstimatedTime = async (origin: string, destination: string) => {
     try {
-      console.log('Fetching time for:', { origin, destination });
-  
       const response = await fetch(
-        `http://localhost:5050/api/directions?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        `http://localhost:5050/api/directions?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`
       );
-  
-      const data = await response.json();
-      console.log('API Response:', data);
-  
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
-      if (data.routes?.[0]?.legs?.[0]?.duration?.text) {
-        return data.routes[0].legs[0].duration.text;
-      }
-  
-      // Si no hay datos de duración, usar un valor por defecto
-      return 'Calculando...';
-    } catch (error) {
-      console.error('Error fetching estimated time:', error);
-      return 'No disponible';
-    }
-  };
-  
-  const handleSave = async () => {
-    if (!form.title || !form.start || !form.end) {
-      // Mostrar mensaje de error al usuario
-      alert('Por favor completa todos los campos');
-      return;
-    }
-    
-    try {
-      const duration = await fetchEstimatedTime(form.start, form.end);
-      console.log('Duration received:', duration);
-  
-      const newTrip = {
-        ...form,
-        id: editingTrip ? editingTrip.id : Date.now().toString(),
-        estimatedTime: duration,
-      };
-  
-      if (editingTrip) {
-        setTrips(trips.map(t => t.id === editingTrip.id ? newTrip : t));
-      } else {
-        setTrips([...trips, newTrip]);
-      }
       
-      closeModal();
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error('Error saving trip:', error);
-      alert('Error al guardar el viaje. Por favor intenta de nuevo.');
+      console.error('Error:', error);
+      // Return a default response structure
+      return {
+        routes: [{
+          legs: [{
+            duration: { text: 'No disponible' }
+          }]
+        }]
+      };
     }
   };
+
+  
+// const fetchEstimatedTime = async (origin: string, destination: string) => {
+//   try {
+//     const response = await fetch(
+//       `http://localhost:5050/api/directions?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`
+//     );
+//     console.log(`http://localhost:5050/api/directions?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     console.error('Error:', error);
+//     throw error;
+//   }
+// };
+
+
+// const handleSave = async () => {
+//   if (!form.title || !form.start || !form.end) return;
+  
+//   try {
+//     const response = await fetchEstimatedTime(form.start, form.end);
+//     const estimatedTime = response?.routes[0]?.legs[0]?.duration?.text || 'No disponible';
+
+//     const tripData = {
+//       title: form.title,
+//       start: form.start,
+//       end: form.end,
+//       estimatedTime,
+//       favorite: form.favorite,
+//       date: form.date,
+//     };
+
+//     if (editingTrip) {
+//       // Actualizar viaje existente
+//       const updatedTrip = await tripService.updateTrip(editingTrip.id, tripData);
+//       setTrips(trips.map(t => t.id === editingTrip.id ? { ...updatedTrip, date: updatedTrip.date ? new Date(updatedTrip.date) : null } : t));
+//     } else {
+//       // Crear nuevo viaje
+//       const newTrip = await tripService.createTrip(tripData);
+//       setTrips([...trips, { ...newTrip, date: newTrip.date ? new Date(newTrip.date) : null }]);
+//     }
+//     closeModal();
+//   } catch (error) {
+//     console.error('Error al guardar el viaje:', error);
+//     // Alert.alert('Error', 'No se pudo guardar el viaje');
+//   }
+// };
+
+const handleSave = async () => {
+  if (!form.title || !form.start || !form.end) return;
+
+  try {
+    const tripData = {
+      origin: 'Santo Domingo',
+      destination: 'Santiago',
+      distance: '155 km',
+      duration: '2 horas',
+    };
+
+    const savedTrip = await saveTrip(tripData);
+    console.log('Viaje guardado:', savedTrip);
+  } catch (error) {
+    console.error('Error al guardar el viaje:', error);
+  }
+  
+  try {
+    const response = await fetchEstimatedTime(form.start, form.end);
+    const estimatedTime = response?.routes[0]?.legs[0]?.duration?.text || 'No disponible';
+
+    if (editingTrip) {
+      setTrips(trips.map(t => 
+        t.id === editingTrip.id 
+          ? { ...editingTrip, ...form, estimatedTime } 
+          : t
+      ));
+    } else {
+      setTrips([
+        ...trips,
+        {
+          ...form,
+          id: Date.now().toString(),
+          estimatedTime,
+        },
+      ]);
+    }
+    closeModal();
+  } catch (error) {
+    console.error('Error al guardar el viaje:', error);
+    // Optionally show an error message to the user
+  }
+};
 
   const handleDelete = (id: string) => {
     setTrips(trips.filter(t => t.id !== id));
@@ -244,7 +299,7 @@ const TripsScreen: React.FC = () => {
       </View>
       <View style={styles.cardRow}>
         <FontAwesome name="clock-o" size={16} color="#888" />
-        <Text style={styles.cardText}>{item.estimatedTime || 'No disponible'}</Text>
+        <Text style={styles.cardText}>{item.estimatedTime}</Text>
       </View>
       {item.date && (
         <View style={styles.cardRow}>
