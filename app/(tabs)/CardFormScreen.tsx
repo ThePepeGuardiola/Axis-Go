@@ -93,11 +93,15 @@ const CreditCardInput = () => {
 
   // Handle card number input
   const handleCardNumberChange = (text: string) => {
-    const cleanedText = text.replace(/\D/g, '');
-    const formattedText = cleanedText.replace(/(\d{4})/g, '$1-').trim();
-    const limitedText = formattedText.slice(0, 19);
-    setCardNumber(limitedText);
-    setCardType(recognizeCardType(cleanedText));
+      let value = text.replace(/[^0-9*]/g, '');
+      let formatted = '';
+      for (let i = 0; i < value.length && i < 16; i++) {
+          if (i > 0 && i % 4 === 0) formatted += '-';
+          formatted += value[i];
+      }
+
+    setCardNumber(formatted);
+    setCardType(recognizeCardType(formatted));
   };
 
   // Handle card holder input
@@ -110,7 +114,16 @@ const CreditCardInput = () => {
   // Handle expiry month input
   const handleExpiryMonthChange = (text: string) => {
     const cleanedText = text.replace(/\D/g, '');
-    const limitedText = Math.min(Math.max(parseInt(cleanedText) || 0, 1), 12).toString().padStart(2, '0');
+    const limitedText = cleanedText.slice(0, 2);
+    if (parseInt(limitedText) > 12) {
+      setExpiryMonth('12');
+      return;
+    }
+    if (parseInt(limitedText) < 1) {
+      setExpiryMonth('01');
+      return;
+    }
+
     setExpiryMonth(limitedText);
   };
 
