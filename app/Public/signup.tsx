@@ -48,11 +48,11 @@ const MySvgComponent = () => (
   </Svg>
 );
 
-export default function SignupScreen() {
+export default function Signup(props: any) {
   return (
     <View style={styles.container}>
-        <MySvgComponent />
-        <CreateAccForm />
+      <MySvgComponent />
+      <CreateAccForm {...props} />
       <StatusBar style="auto" />
     </View>
   );
@@ -61,7 +61,11 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 20,
     backgroundColor: "#fff",
   },
   background: {

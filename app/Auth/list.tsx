@@ -100,12 +100,11 @@ export default function App() {
   }
 
   // Degradado del Background
-  
     const gradientHeight = 700;
     const gradientBackground = "#FFC1CF";
     const data = Array.from({ length: gradientHeight }, (_, i) => i);
     return(
-
+      
         <View style={styles.container}>
           
           {data.map((_, i) => (
@@ -122,9 +121,8 @@ export default function App() {
             }}
           />
         ))}
-
     
-               <StatusBar style="auto"/>
+            <StatusBar style="auto"/>
 
             <Text style={styles.title}>Favoritos</Text>
 
@@ -169,60 +167,52 @@ export default function App() {
         </View>
       )}
     />
-               
-               
   </View>
-);
-}
-
+)};
 
 const styles = StyleSheet.create({
-  
   container: {
     flex: 1,
     height: '100%',
     overflow: 'hidden',
-},
+  },
+  title: {
+    marginLeft: 15,
+    marginBottom: 10,
+    marginTop: 20,
+    fontSize: 28,
+    color: '#3B3B3B',
+    fontFamily: "Roboto-Regular",
+  },
 
-title: {
-  marginLeft: 15,
-  marginBottom: 10,
-  marginTop: 20,
-  fontSize: 28,
-  color: '#3B3B3B',
-  fontFamily: "Roboto-Regular",
-},
+  listContainer: {
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    padding: 15,
+  },
 
-listContainer: {
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  padding: 15,
-},
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "30%",
+  },
 
-headerContainer: {
-  flexDirection: "row",
-  alignItems: "center",
-  width: "30%",
-},
+  icon: {
+    marginRight: 20,
+  },
 
-icon: {
-  marginRight: 20,
-},
-
-MainText: {
-  fontSize: 18,
-},
-subListsContainer: {
-  flexDirection: "row", 
-  justifyContent: "space-between",
-  width: "105%", 
-},
-subText: {
-  fontSize: 15,
-  color: '#8F8F8F',
-  paddingVertical: 2,
-  paddingHorizontal: 37,
-},
-
+  MainText: {
+    fontSize: 18,
+  },
+  subListsContainer: {
+    flexDirection: "row", 
+    justifyContent: "space-between",
+    width: "105%", 
+  },
+  subText: {
+    fontSize: 15,
+    color: '#8F8F8F',
+    paddingVertical: 2,
+    paddingHorizontal: 37,
+  },
 });
-

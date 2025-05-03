@@ -87,7 +87,7 @@ export const BottomNav = () => {
           />
         </View>
       </TouchableOpacity>
-      <NavButton3 onPress={() => handleNavigation(ROUTES.AUTH.NOTIFICATIONS)} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
+      <NavButton3 onPress={() => {() => handleNavigation(ROUTES.AUTH.METPAGO)}} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
       <TouchableOpacity style={styles.navItem} onPress={toggleMenu}>
         <View style={styles.profile}>
           <Image

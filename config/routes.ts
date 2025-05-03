@@ -5,6 +5,7 @@ export const ROUTES = {
     LIST: '/Auth/list' as const,
     NOTIFICATIONS: '/Auth/notifications' as const,
     PROFILE: '/Auth/PerfilUsuario' as const,
+    METPAGO: '/Auth/metPago' as const,
   },
   PUBLIC: {
     LOGIN: '/Public/login' as const,

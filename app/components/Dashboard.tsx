@@ -216,6 +216,14 @@ const styles = StyleSheet.create({
     },
 });
 
-export default function Dashboard() {
-  // ... existing component code ...
-}
+// Default export combining all components
+const Dashboard = () => (
+  <ScrollView>
+    <Welcome />
+    <WeatherSection />
+    <Categories />
+    <RecentSection />
+  </ScrollView>
+);
+
+export default Dashboard;
