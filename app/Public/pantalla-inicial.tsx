@@ -1,10 +1,13 @@
-import { router } from "expo-router";
+import React from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, Image, Pressable, Text, Platform } from "react-native";
-
+import { useRouter } from "expo-router";
+import { StyleSheet, View, Image, Pressable, Text } from "react-native";
 
 export default function App() {
+    const router = useRouter();
+
     return(
+        
         <View style={styles.container}>
             
             <StatusBar style="auto"/>
@@ -13,43 +16,39 @@ export default function App() {
             {/* IMAGES */}
 
             <Image
-                    source={require('@/assets/images/welcome-image.png')}
-                    style={styles.mainimage}
-                    />
-
+                source={require('@/assets/images/welcome-image.png')} 
+                style={styles.mainimage} 
+                />
             <Image
-                    source={require('@/assets/images/back-image.png')}
-                    style={styles.backimage}
-                    />
+                source={require('@/assets/images/back-image.png')}
+                style={styles.backimage}
+                />
 
 
             {/* TEXT */}
 
             <Text style={styles.mtext}>Descubre tu ruta de transporte ideal aquí.</Text>
+
             <Text style={styles.stext}>Explora todas las rutas de transporte disponibles según tus intereses y destino principal.</Text>
 
 
-            {/* BUTTONS */}
-
-            <View style={styles.logbuttons}>
-                <Pressable style={styles.button}>
-                        <Text style={styles.logtext}>Login</Text>
-                </Pressable>
-
+        {/* BUTTONS */}
 
         <View style={styles.logbuttons}>
-               <Pressable style={styles.button} onPress={() => {router.push('/Login')}} >
-                       <Text style={styles.logtext}>Login</Text>
-               </Pressable>
+            <Pressable style={styles.button} onPress={() => {router.push('/Public/login')}}>
+                    <Text style={styles.logtext}>Login</Text>
+            </Pressable>
 
 
-               <Pressable style={styles.button2} onPress={() => {router.push('/signup')}}>
-                       <Text style={styles.logtext2}>Register</Text>
-               </Pressable>
+            <Pressable style={styles.button2} onPress={() => {router.push('/Public/signup')}}>
+                    <Text style={styles.logtext2}>Registro</Text>
+            </Pressable>
         </View>
-            </View>
-        </View>
-)};
+            
+
+    </View>
+);
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -59,12 +58,14 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-end',
     },
+
     backimage: {
         zIndex: -1,
         position: 'absolute',
         top: 0,
         right: 0,
     },
+
     mainimage: {
         overflow: 'hidden',
         left: -330,
@@ -73,6 +74,7 @@ const styles = StyleSheet.create({
         width: 1040,
         resizeMode: 'contain',
     },
+
     mtext: {
         fontSize: 36,
         position: 'absolute',
@@ -81,18 +83,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center'
     },
+
     stext: {
         fontSize: 18,
         textAlign: 'center'
     },
+
     logbuttons:{
         flexDirection: 'row',
     },
+
     logtext: {
         fontSize: 25,
         fontWeight: 'bold',
         color: 'white',
     },
+
     button: {
         width: '70%',
         marginVertical: 80,
@@ -101,19 +107,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         backgroundColor: '#900020',
-        ...(Platform.OS === 'web' ? {
-            boxShadow: '0px 7px 10px #FF9EB4'
-        } : {
-            shadowColor: '#FF9EB4',
-            shadowOffset:{ width: 0, height: 7},
-            shadowOpacity: 1,
-            shadowRadius: 10,
-        }),
+        shadowColor: '#FF9EB4',
+        shadowOffset:{ width: 0, height: 7},
+        shadowOpacity: 1,
+        shadowRadius: 10,
     },
+
     logtext2: {
         fontSize: 25,
         fontWeight: 'bold',
     },
+
     button2: {
         width: '60%',
         marginVertical: 80,

@@ -11,6 +11,7 @@ import { ROUTES } from '../../config/routes';
 import api from '../../utils/axiosConfig';
 import { useAlert } from '../../context/AlertContext';
 import LoadingScreen from '../components/LoadingScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -86,6 +87,12 @@ export default function Login() {
                 }
                 
                 await login(data.session_token);
+                await AsyncStorage.multiSet(
+                    Object.entries(data.usuario).map(([key, value]) => [
+                      key,
+                      value ? value.toString() : ""
+                    ])
+                );
             } else {
                 showAlert('Error', data.message || 'Credenciales inválidas', 'error');
             }
@@ -127,6 +134,12 @@ export default function Login() {
                 
                 if (sessionToken) {
                     await login(sessionToken);
+                    await AsyncStorage.multiSet(
+                        Object.entries(data.usuario).map(([key, value]) => [
+                          key,
+                          value ? value.toString() : ""
+                        ])
+                    );
                 } else {
                     showAlert('Error', 'No se recibió un token de sesión válido', 'error');
                 }

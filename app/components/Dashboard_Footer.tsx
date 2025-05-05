@@ -61,8 +61,7 @@ export const BottomNav = () => {
       const routeName = path.split('/').pop();
       if (routeName) {
         // Keep PerfilUsuario as is, convert others to lowercase
-        const finalRouteName = routeName === 'PerfilUsuario' ? routeName : routeName.toLowerCase();
-        router.push(`/Auth/${finalRouteName}` as any);
+        router.push(`/Auth/${routeName}` as any);
       }
     } catch (error) {
       console.error('Navigation error:', error);
@@ -87,7 +86,7 @@ export const BottomNav = () => {
           />
         </View>
       </TouchableOpacity>
-      <NavButton3 onPress={() => {() => handleNavigation(ROUTES.AUTH.METPAGO)}} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
+      <NavButton3 onPress={() => handleNavigation(ROUTES.AUTH.METPAGO)} iconPath="M25.4772 14.8235C25.4772 13.3738..." width={29} height={29} />
       <TouchableOpacity style={styles.navItem} onPress={toggleMenu}>
         <View style={styles.profile}>
           <Image

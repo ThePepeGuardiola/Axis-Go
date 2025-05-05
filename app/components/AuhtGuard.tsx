@@ -58,6 +58,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             'session-token': token
           },
         });
+        console.log("respuesta, AuthGuard", response);
         
         if (response.data.status === true) {
           await AsyncStorage.setItem('last_token_validation', Date.now().toString());
@@ -191,6 +192,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
         
         if (!isAuthenticated && inAuthGroup) {
+          console.log("No autenticado");
           safeNavigate(ROUTES.PUBLIC.LOGIN);
           return;
         }

@@ -10,11 +10,11 @@ import {
     useBlurOnFulfill,
     useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
-
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useNavigation  } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAlert } from '../../context/AlertContext';
+import { useAuth } from '../../context/Authcontext';
 
 const CELL_COUNT = 7;
 
@@ -22,16 +22,7 @@ type VerificationScreenRouteProp = RouteProp<{ Verification: { email: string } }
 type VerificationScreenNavigationProp = StackNavigationProp<any>;
 
 const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
-    const navigation = useNavigation<StackNavigationProp<any>>();
-
-    // Obtener el email del contexto
-    var email:string = "";
-    var password:string = "";
-    var username:string = "";
-    var birthdate:string = "";
-    var phone:string = "";
-    var country_code:string = "";
-    var gender:string = "";
+    const { login, isProcessing } = useAuth();
 
     // Accedemos al correo electrónico desde el contexto
     const [verificationCode, setVerificationCode] = useState('');
@@ -47,28 +38,24 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
 
     const [userData, setUserData] = useState<{ [key: string]: string | null } | null>(null);
 
-    if (!navigation) {
-        console.error("❌ La prop navigation no está disponible.");
-    }
-
     useEffect(() => {
         const loadUserData = async () => {
             try {
             const storedData = await AsyncStorage.multiGet([
-                "emailRegistro",
-                "passwordRegistro",
-                "usernameRegistro",
-                "birthdateRegistro",
-                "phoneRegistro",
-                "country_codeRegistro",
-                "genderRegistro",
+                "email",
+                "password",
+                "userName",
+                "birthdate",
+                "phone",
+                "country_code",
+                "gender",
             ]);
     
             const parsedData = Object.fromEntries(
-                storedData.map(([key, value]) => [key.replace("Registro", ""), value])
+                storedData.map(([key, value]) => [key, value])
             );
     
-            if (!parsedData.email || !parsedData.username || !parsedData.password || !parsedData.birthdate || !parsedData.gender) {
+            if (!parsedData.email || !parsedData.userName || !parsedData.password || !parsedData.birthdate || !parsedData.gender) {
                 console.error("❌ Error: Datos vacíos después de cargar desde AsyncStorage");
             }
 
@@ -128,7 +115,7 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
         setIsResending(true);
         try {
             // 🔹 Obtener el email almacenado en AsyncStorage
-            const storedEmail = await AsyncStorage.getItem("emailRegistro");
+            const storedEmail = await AsyncStorage.getItem("email");
 
             const response = await fetch("http://localhost:5050/api/resend-verification-token", {
                 method: "POST",
@@ -154,7 +141,7 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
 
     try {
         // 🔹 Obtener el email almacenado en AsyncStorage
-        const storedEmail = await AsyncStorage.getItem("emailRegistro");
+        const storedEmail = await AsyncStorage.getItem("email");
 
         if (!storedEmail) {
             console.error("❌ Email no definido en handleLogin");
@@ -171,15 +158,10 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
         const data = await response.json();
 
         if (response.ok) {
-            await AsyncStorage.setItem("session_token", data.session_token);
+            await AsyncStorage.setItem("userId", data.user_id);
+            await login(data.session_token);
 
             showAlert("", "Inicio de sesión exitoso. Bienvenido a Axis Go", "success");
-            
-            if (navigation) {
-                navigation.navigate('(tabs)/home');
-            } else {
-                console.error("❌ navigation no está definido.");
-            }
         } else {
             console.error("❌ Error en login:", data.message);
             showAlert("", data.message || "No se pudo iniciar sesión.", "error");
@@ -189,28 +171,6 @@ const Verification = ({ route }: { route: VerificationScreenRouteProp }) => {
         showAlert("Error", "Ocurrió un problema al iniciar sesión.");
     }
 };
-
-    const handleLogout = async () => {
-        try {
-            const token = await AsyncStorage.getItem('session_token');
-            const response = await fetch("http://localhost:5050/api/logout", {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-    
-            if (response.ok) {
-                await AsyncStorage.removeItem('session_token');
-                navigation.replace("Login"); // Redirigir al login
-            } else {
-                showAlert("", "No se pudo cerrar sesión.", "error");
-            }
-        } catch (error) {
-            showAlert("", "Ocurrió un problema al cerrar sesión.", "error");
-        }
-    };
 
     return (
         <SafeAreaView style={styles.root}>

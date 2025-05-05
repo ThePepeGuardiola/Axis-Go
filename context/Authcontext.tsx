@@ -34,6 +34,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
       try {
         const response = await api.get('/api/verificarSesion');
+        console.log("respuesta, Context", response);
         setIsAuthenticated(response.data.status === true);
       } catch (error) {
         setIsAuthenticated(false);
@@ -112,9 +113,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       
       // Limpiar el estado local
       setIsAuthenticated(false);
-      await AsyncStorage.removeItem('session_token');
-      await AsyncStorage.removeItem('last_token_validation');
-      await AsyncStorage.removeItem('user_data');
+      await AsyncStorage.clear();
       
       // Esperar un poco antes de navegar
       await new Promise(resolve => setTimeout(resolve, 500));

@@ -11,10 +11,16 @@ export const Welcome = () => (
 );
 
 // Componente de clima y ubicación
-export const WeatherSection = () => (
+export function WeatherSection (){
+
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const today  = new Date();
+  const formattedDate = today.toLocaleDateString('es-ES', options);
+
+  return (
   <View style={styles.weatherSection}>
     <Text style={styles.temperature}>29°</Text>
-    <Text style={styles.date}>2 DIC, 2024</Text>
+    <Text style={styles.date}>{formattedDate}</Text>
     <Text style={styles.location}>
     <Svg width={11} height={12} viewBox="0 0 11 12" fill="none">
               <Path
@@ -28,7 +34,8 @@ export const WeatherSection = () => (
     </Text>
     <Image source={require('../../assets/images/sun.png')} style={{ position: 'absolute', left: '85%' }} />
   </View>
-);
+  )
+}
 
 // Componente de tarjeta de categoría
 interface CategoryCardProps {
@@ -151,7 +158,8 @@ const styles = StyleSheet.create({
 },
     date: { 
         fontSize: 16, 
-        color: '#C7C7C7' 
+        color: '#C7C7C7',
+        textTransform: 'uppercase'
 },
     location: { 
         flexDirection: 'row', 

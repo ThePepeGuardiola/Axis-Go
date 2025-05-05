@@ -91,7 +91,17 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
     }
 
     const userData = {
-        username, email, password, birthdate, phone: phone || null, country_code: country_code || null, gender
+      userName: username, 
+      email, 
+      birthdate, 
+      phone: phone || null, 
+      country_code: country_code || null, 
+      gender,
+      nombre: null,
+      apellido: null,
+      provider: "local",
+      profileImageUrl: null,
+      password
     };
 
     setLoading(true);
@@ -99,20 +109,20 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
     try {
         await AsyncStorage.multiSet(
           Object.entries(userData).map(([key, value]) => [
-            key + "Registro",
+            key,
             value ? value.toString() : ""
           ])
         );
 
       // Verificar si los datos se guardaron correctamente
       const checkStorage = await AsyncStorage.multiGet([
-        "emailRegistro",
-        "passwordRegistro",
-        "usernameRegistro",
-        "birthdateRegistro",
-        "phoneRegistro",
-        "country_codeRegistro",
-        "genderRegistro"
+        "email",
+        "password",
+        "userName",
+        "birthdate",
+        "phone",
+        "country_code",
+        "gender"
       ]);
 
       console.log(checkStorage)
@@ -164,7 +174,7 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
   useEffect(() => {
     if (registroCompletado) {
         setTimeout(() => {
-            router.replace("/VerificationScreen");
+            router.replace("/Public/VerificationScreen");
         }, 100);
     }
   }, [registroCompletado]);
@@ -173,23 +183,23 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
     const cargarDatos = async () => {
       try {
         const keys = [
-          "usernameRegistro",
-          "emailRegistro",
-          "birthdateRegistro",
-          "phoneRegistro",
-          "country_codeRegistro",
-          "genderRegistro"
+          "userName",
+          "email",
+          "birthdate",
+          "phone",
+          "country_code",
+          "gender"
         ];
   
         const valores = await AsyncStorage.multiGet(keys);
         const data = Object.fromEntries(valores);
   
-        if (data.usernameRegistro) setUsername(data.usernameRegistro);
-        if (data.emailRegistro) setEmail(data.emailRegistro);
-        if (data.birthdateRegistro) setBirthdate(data.birthdateRegistro);
-        if (data.phoneRegistro) setPhone(data.phoneRegistro);
-        if (data.country_codeRegistro) setCountry_code(data.country_codeRegistro);
-        if (data.genderRegistro) setGender(data.genderRegistro === "true");
+        if (data.username) setUsername(data.username);
+        if (data.email) setEmail(data.email);
+        if (data.birthdate) setBirthdate(data.birthdate);
+        if (data.phone) setPhone(data.phone);
+        if (data.country_code) setCountry_code(data.country_code);
+        if (data.gender) setGender(data.gender === "true");
       } catch (error) {
         console.error("Error cargando datos del formulario:", error);
       }
@@ -381,7 +391,7 @@ const SignupForm = ({ route, navigation }: { route: VerificationScreenRouteProp,
 // Componente de subtexto
 const Subtext = () => (
   <View style={subtextStyles.container}>
-    <TouchableOpacity onPress={() => router.push("/Login")}>
+    <TouchableOpacity onPress={() => router.push("/Public/login")}>
       <Text style={subtextStyles.textBold}>Ya tienes una cuenta</Text>
     </TouchableOpacity>
   </View>
