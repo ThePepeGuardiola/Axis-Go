@@ -1,25 +1,33 @@
-import { Stack, usePathname, useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { Stack } from 'expo-router';
+import { useEffect } from 'react';
+import * as Font from 'expo-font';
+import AuthGuard from './components/AuhtGuard';
+import { AuthProvider } from '../context/Authcontext';
 import { AlertProvider } from '../context/AlertContext';
 
-export default function Layout() {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  redirectIfRootPath(pathname, router);
+export default function RootLayout() {
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        'AntDesign': require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/AntDesign.ttf'),
+        // Add other fonts as needed
+      });
+    }
+    loadFonts();
+  }, []);
 
   return (
     <AlertProvider>
-      <StatusBar hidden />
-      <Stack screenOptions={{ headerShown: false }} />
+      <AuthProvider>
+        <AuthGuard>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="Public" />
+            <Stack.Screen name="Auth" />
+            <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+          </Stack>
+        </AuthGuard>
+      </AuthProvider>
     </AlertProvider>
   );
-}
-function redirectIfRootPath(pathname: string, router: ReturnType<typeof useRouter>) {
-  useEffect(() => {
-    if (pathname === "/") {
-      router.replace("/pantalla-inicial");
-    }
-  }, [pathname]);
 }

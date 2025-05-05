@@ -10,7 +10,7 @@ const DATA = [
   {
     id: "1",
     category: "Supermercados",
-    icon: "star",
+    icon: "star" as "star",
     items1: ["Jumbo, Av. Luperon"],
     items2: ["1.7 Km"],
   },
@@ -22,56 +22,56 @@ const DATA = [
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "3",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "4",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "5",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "6",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "7",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "8",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "9",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
     items2: ["1.5 Km",],
   },
   {
-    id: "2",
+    id: "10",
     category: "Gym",
     icon: "star",
     items1: ["Smart fit, Nuñez de caceres"],
@@ -136,7 +136,7 @@ export default function App() {
           {/* Icono */}
 
           <View style={styles.headerContainer}>
-            <FontAwesome name={item.icon} size={23} color="#900020" style={styles.icon} />
+            <FontAwesome name={item.icon as "star"} size={23} color="#900020" style={styles.icon} />
             <Text style={styles.MainText}>{item.category}</Text>
           </View>
 

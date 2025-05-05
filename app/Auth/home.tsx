@@ -1,9 +1,9 @@
-// HomeScreen.tsx
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { WeatherSection, Categories, RecentSection } from '../components/Dashboard';
 import { TopBar } from '../components/Dashboard_header';
 import { BottomNav } from '../components/Dashboard_Footer';
+
 
 const HomeScreen: React.FC = () => {
     return (

@@ -9,9 +9,9 @@ export default function NotFound() {
 
   const handleGoBack = () => {
     if (isAuthenticated) {
-      router.replace(ROUTES.AUTH.HOME as any);
+      router.replace(ROUTES.AUTH.HOME);
     } else {
-      router.replace(ROUTES.PUBLIC.LOGIN as any);
+      router.replace(ROUTES.PUBLIC.LOGIN);
     }
   };
 
@@ -20,7 +20,7 @@ export default function NotFound() {
       <Text style={styles.title}>404</Text>
       <Text style={styles.subtitle}>Página no encontrada</Text>
       <Text style={styles.description}>
-        Lo sentimos, la página que estás buscando no existe o ha sido movida.
+        Lo sentimos, la ruta que estás buscando no existe o ha sido movida.
       </Text>
       <Pressable style={styles.button} onPress={handleGoBack}>
         <Text style={styles.buttonText}>
@@ -36,36 +36,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 20,
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 80,
-    fontWeight: '800',
+    fontSize: 72,
+    fontWeight: 'bold',
     color: '#900020',
-    marginBottom: 10,
   },
   subtitle: {
     fontSize: 24,
     fontWeight: '600',
+    marginTop: 10,
     color: '#333',
-    marginBottom: 20,
   },
   description: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
+    marginTop: 10,
+    color: '#666',
     marginBottom: 30,
   },
   button: {
     backgroundColor: '#900020',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
-});
+}); 

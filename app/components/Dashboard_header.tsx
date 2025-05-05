@@ -46,7 +46,7 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
       <IconButton1 iconPath="M15.75 10.5V6C15.75 3.92893..." onPress={() => {
           }} />
   
-      <TextInput style={styles.searchBar} placeholder="Search" />
+      <TextInput style={styles.searchBar} placeholder="Buscar" />
   
       <IconButton2 iconPath="M14.8569 17.0817C16.7514 16.857 18.5783..." onPress={() => {
           }} />
@@ -73,4 +73,6 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
     }
     });
 
-export default Headers;
+export default function DashboardHeader() {
+  // ... existing component code ...
+}

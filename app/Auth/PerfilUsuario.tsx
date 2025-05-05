@@ -5,11 +5,11 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import IconInput from '@/components/IconInput';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useAlert } from '../../context/AlertContext';
+import { useRouter } from 'expo-router';
+import api from '../../utils/axiosConfig';
 
 LocaleConfig.locales['es'] = {
     monthNames: [
@@ -41,7 +41,6 @@ const data_1 = [
 ];
 
 const ProfileScreen = () => {
-    const navigation = useNavigation();
     const { showAlert } = useAlert(); // Extract showAlert from the context
     const DEFAULT_IMAGE = require('../../assets/images/user-icon.png');
     interface Profile {
@@ -64,7 +63,6 @@ const ProfileScreen = () => {
 
     const [profileImage, setProfileImage] = useState({ uri: DEFAULT_IMAGE });
     const [isUploadingImage, setIsUploadingImage] = useState(false);
-    const [isPressed1, setIsPressed1] = useState(false);
     const [isPressed2, setIsPressed2] = useState(false);
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState<string | null>(null);
@@ -72,6 +70,7 @@ const ProfileScreen = () => {
     const [date, setDate] = useState(new Date());
     const [showCalendarModal, setShowCalendarModal] = useState(false);
     const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
+    const router = useRouter();
 
     useEffect(() => {
         (async () => {
@@ -99,6 +98,7 @@ const ProfileScreen = () => {
         const filename = localUri.split('/').pop();
         const match = /\.(\w+)$/.exec(filename ?? '');
         const type = match ? `image/${match[1]}` : `image`;
+        const userId = await AsyncStorage.getItem("userId") || '';
 
         const formData = new FormData();
         formData.append('image', {
@@ -106,34 +106,24 @@ const ProfileScreen = () => {
             name: filename ?? 'profile.jpg',
             type: type,
         } as any);
+        formData.append('userId', userId);
 
         try {
-            const res = await fetch('http://localhost:5050/api/user-profile/upload-image', {
-                method: 'POST',
-                body: formData,
+            let res = await api.post('http://localhost:5050/api/user-profile/upload-image', formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                  'Content-Type': 'multipart/form-data'
+                }
             });
 
-            const data = await res.json();
+            res = res.data;
 
-            if (!res.ok) {
-                throw new Error(data.message || 'Error subiendo imagen');
+            if (res.imageUrl) {
+                setProfileImage({ uri: res.imageUrl });
+                console.log('✅ Imagen subida correctamente', res.imageUrl);
             }
 
-            if (data.imageUrl) {
-                setProfileImage({ uri: data.imageUrl });
-                console.log('✅ Imagen subida correctamente', data.imageUrl);
-            }
-
-            await axios.put(
-                'http://localhost:5050/api/user-profile/image-url', { imageUrl: data.imageUrl },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+            await api.put(
+                'http://localhost:5050/api/user-profile/image-url', { imageUrl: data.imageUrl }
             );
 
             console.log('✅ Imagen subida y URL actualizada en la base de datos');
@@ -155,25 +145,24 @@ const ProfileScreen = () => {
                 const file = input.files?.[0];
                 if (!file) return;
 
+                let userId = await AsyncStorage.getItem("userId") || '';
+
                 const formData = new FormData();
                 formData.append('image', file);
+                formData.append('userId', userId);
 
                 try {
-                    const res = await fetch('http://localhost:5050/api/user-profile/upload-image', {
-                        method: 'POST',
-                        body: formData,
+                    let res = await api.post('http://localhost:5050/api/user-profile/upload-image', formData, {
                         headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                          'Content-Type': 'multipart/form-data'
+                        }
                     });
 
-                    const data = await res.json();
+                    res = res.data;
 
-                    if (!res.ok) throw new Error(data.message || 'Error subiendo imagen');
-
-                    if (data.imageUrl) {
-                        setProfileImage({ uri: data.imageUrl });
-                        console.log('✅ Imagen subida correctamente (Web)', data.imageUrl);
+                    if (res.imageUrl) {
+                        setProfileImage({ uri: res.imageUrl  });
+                        console.log('✅ Imagen subida correctamente (Web)', res.imageUrl);
                     }
                 } catch (err: any) {
                     showAlert('','Error subiendo la imagen: ' + err.message,'error');
@@ -198,7 +187,8 @@ const ProfileScreen = () => {
 
     useEffect(() => {
         if (profileData?.profile_image_url) {
-            setProfileImage({ uri: profileData.profile_image_url });
+            console.log(profileData.profile_image_url)
+            setProfileImage({ uri: profileData.profile_image_url  });
         }
     }, [profileData]);
 
@@ -256,10 +246,17 @@ const ProfileScreen = () => {
         const fetchProfile = async () => {
             setLoading(true);
             try {
-                const res = await axios.get('http://localhost:5050/api/user-profile', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+
+                const keys = await AsyncStorage.getAllKeys();
+                const result = await AsyncStorage.multiGet(keys);
+                console.log(result)
+            
+                let userId = await AsyncStorage.getItem("userId");
+
+                const res = await api.get('http://localhost:5050/api/user-profile',{
+                    params: {
+                        userId
+                    }
                 });
 
                 const fetchedProfileData = res.data;
@@ -360,22 +357,23 @@ const ProfileScreen = () => {
             return;
         }
 
-        const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
-        if (profile.phone && !phoneRegex.test(profile.phone)) {
-            showAlert('', 'Número inválido. Usa el formato XXX-XXX-XXXX', 'error');
-            return;
-        }
+        // const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+        // if (profile.phone && !phoneRegex.test(profile.phone)) {
+        //     showAlert('', 'Número inválido. Usa el formato XXX-XXX-XXXX', 'error');
+        //     return;
+        // }
+
+        let userId = await AsyncStorage.getItem("userId");
 
         try {
-            await axios.put('http://localhost:5050/api/user-profile', {
+            await api.put('http://localhost:5050/api/user-profile', {
+                userId,
                 username: profile.username,
                 email: profile.email,
                 birthdate: birthdateToSend,
                 phone: profile.phone,
                 gender: profile.gender,
                 country_code: profile.country_code,
-            }, {
-                headers: { Authorization: `Bearer ${token}` },
             });
 
             showAlert('', 'Perfil actualizado correctamente', 'success');
@@ -391,14 +389,18 @@ const ProfileScreen = () => {
                 {loading ? <ActivityIndicator size="large" style={{ marginTop: 20 }} /> : (
                     <>
                         <View style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-                            <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }} onPress={() => router.back()}>
+                            <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }} onPress={() => router.push('/Auth/home')}>
                                 <Image source={require('../../assets/icons/arrow.png')} />
                                 <Text style={{ fontSize: 18, fontWeight: 700 }}>Perfil</Text>
                             </Pressable>
                         </View>
                         <View style={{ flex: 4, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                             <Pressable onPress={pickImage}>
-                                {isUploadingImage ? <ActivityIndicator size="large" /> : <Image style={{ width: 150, height: 150, borderRadius: 100 }} source={profileImage?.uri ? { uri: profileImage.uri + '?t=' + new Date() } : DEFAULT_IMAGE} />}
+                                {isUploadingImage ? <ActivityIndicator size="large" /> : 
+                                <Image 
+                                    style={{ width: 150, height: 150, borderRadius: 100 }}
+                                    source={profileImage?.uri ? { uri: profileImage.uri } : DEFAULT_IMAGE} />
+                                }
                             </Pressable>
                         </View>
                         <View style={{ flex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', width: '100%', paddingHorizontal: 20 }}>
@@ -543,9 +545,8 @@ const ProfileScreen = () => {
 
                             <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginVertical: 10, flexWrap: 'wrap' }}>
                                 <Pressable
-                                    style={isPressed1 ? styles.buttonPressed : styles.button}
-                                    onPressIn={() => setIsPressed1(true)}
-                                    onPressOut={() => setIsPressed1(false)}
+                                    style={styles.button}
+                                    onPress={() => router.push('/Auth/metPago')}
                                     hitSlop={20}
                                     pressRetentionOffset={{ top: 10, left: 10, right: 10, bottom: 10 }}
                                 >
@@ -571,7 +572,7 @@ const ProfileScreen = () => {
                 )}
             </SafeAreaView>
         </SafeAreaProvider>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
