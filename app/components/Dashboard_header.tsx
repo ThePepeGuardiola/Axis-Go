@@ -7,7 +7,6 @@ interface IconButtonProps {
     onPress: () => void;
     iconPath: string;
   }
-
 interface IconButtonProps {
   onPress: () => void;
   iconPath: string;
@@ -45,13 +44,11 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
   export const TopBar = () => (
     <View style={styles.topBar}>
       <IconButton1 iconPath="M15.75 10.5V6C15.75 3.92893..." onPress={() => {
-          console.log('Funcion no implementada.');
           }} />
   
-      <TextInput style={styles.searchBar} placeholder="Search" />
+      <TextInput style={styles.searchBar} placeholder="Buscar" />
   
       <IconButton2 iconPath="M14.8569 17.0817C16.7514 16.857 18.5783..." onPress={() => {
-          console.log('Funcion no implementada.');
           }} />
     </View>
   );
@@ -75,3 +72,7 @@ export const IconButton1: React.FC<IconButtonProps> = ({ onPress }) => (
         padding: 10 
     }
     });
+
+export default function DashboardHeader() {
+  // ... existing component code ...
+}
