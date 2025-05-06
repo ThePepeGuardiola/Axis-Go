@@ -293,6 +293,57 @@ const App = () => {
   const [realtimeInfo, setRealtimeInfo] = useState(null);
   const [popularRoutes, setPopularRoutes] = useState([]);
 
+  // Metro Línea 1 (Azul)
+  const METRO_L1 = [
+    { name: "Centro de los Héroes", location: "Av Enrique Jiménez Moya, Santo Domingo", line: "L1" },
+    { name: "Francisco Alberto Caamaño", location: "Av. Dr. Bernardo Correa y Cidrón, Santo Domingo", line: "L1" },
+    { name: "Amín Abel", location: "Av. Dr. Bernardo Correa y Cidrón, Santo Domingo", line: "L1" },
+    { name: "Joaquín Balaguer", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
+    { name: "Casandra Damirón", location: "F3CQ+G54 estacion casandra damiron, Santo Domingo", line: "L1" },
+    { name: "Prof. Juan Bosch", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
+    { name: "Juan Pablo Duarte", location: "Av. Máximo Gómez, Santo Domingo", line: "L1", transfer: true },
+    { name: "Peña Battle", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
+    { name: "Pedro L. Cedeño", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
+    { name: "Los Taínos", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
+    { name: "Máximo Gómez", location: "Santo Domingo", line: "L1" },
+    { name: "Hermanas Mirabal", location: "Av. Ecológica Prof. Juan Bosch, Santo Domingo", line: "L1" },
+    { name: "José Francisco Peña Gómez", location: "Av. Hermanas Mirabal, Santo Domingo", line: "L1" },
+    { name: "Gregorio Luperón", location: "Santo Domingo", line: "L1" },
+    { name: "Gregorio Urbano Gilbert", location: "Avenida Hermanas Mirabal, Santo Domingo", line: "L1" },
+    { name: "Mamá Tingó", location: "Av. Hermanas Mirabal, Santo Domingo", line: "L1" }
+  ];
+
+  // Metro Línea 2 (Roja)
+  const METRO_L2 = [
+    { name: "María Montez", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Pedro Francisco Bonó", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Francisco Gregorio Billini", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Ulises Francisco Espaillat", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Pedro Mir", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Freddy Beras Goico", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Juan Ulises García Saleta", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
+    { name: "Juan Pablo Duarte", location: "Av. Máximo Gómez, Santo Domingo", line: "L2", transfer: true },
+    { name: "Coronel Rafael Fernandez Dominguez", location: "Expreso V Centenario, Santo Domingo", line: "L2" },
+    { name: "Mauricio Baez", location: "Expreso V Centenario, Santo Domingo", line: "L2" },
+    { name: "Ramon Caceres", location: "Av. Juan Pablo Duarte, Santo Domingo", line: "L2" },
+    { name: "Horacio Vasquez", location: "Calle Josefa Brea, Santo Domingo", line: "L2" },
+    { name: "Manuel de JS. Galvan", location: "Av. Padre Castellanos, Santo Domingo", line: "L2" },
+    { name: "Eduardo Brito", location: "Av. Francisco del Rosario Sanchez, Santo Domingo", line: "L2", transfer: true }
+  ];
+
+  // Teleférico
+  const TELEFERICO_STATIONS = [
+    { name: "Gualey (T1)", location: "G438+WJ4, Av. Padre Castellanos, Santo Domingo" },
+    { name: "Tres Brazos (T2)", location: "Av. Pdte. Hugo Chávez 29, Santo Domingo Este" },
+    { name: "Sabana Perdida (T3)", location: "Calle Principal, Santo Domingo" },
+    { name: "Cruce Charles de Gaulle (T4)", location: "Av. Charles de Gaulle, Santo Domingo" }
+  ];
+
+  const TRANSPORT_PRICES = {
+    Metro: 20,
+    OMSA: 15
+  };
+
   const requestLocationPermission = async () => {
     try {
       if (Platform.OS === 'web') {
@@ -449,74 +500,54 @@ const App = () => {
     }
   };
 
-  // Ejemplo de opciones de ruta (esto vendrá de la API después)
-  const routeOptions = [
-    {
-      id: 1,
-      type: "Metro + Bus",
-      time: "25 min",
-      distance: "3.2 km",
-      price: "35.00",
-      icon: require('../../assets/images/metroo.png'),
-      steps: [
-        { type: "walk", description: "Caminar hasta estación Centro de los Héroes", duration: "5 min" },
-        { type: "metro", description: "Tomar Metro Línea 1 hacia Villa Mella", duration: "15 min" },
-        { type: "bus", description: "Tomar OMSA C-01 hacia destino", duration: "5 min" }
-      ]
-    },
-    {
-      id: 2,
-      type: "Bus Expreso",
-      time: "30 min",
-      distance: "3.5 km",
-      price: "25.00",
-      icon: require('../../assets/images/bus.png'),
-      steps: [
-        { type: "walk", description: "Caminar hasta parada OMSA", duration: "3 min" },
-        { type: "bus", description: "Tomar OMSA Expreso hacia destino", duration: "27 min" }
-      ]
-    },
-    {
-      id: 3,
-      type: "Carrito Público",
-      time: "20 min",
-      distance: "3.0 km",
-      price: "50.00",
-      icon: require('../../assets/images/car.png'),
-      steps: [
-        { type: "walk", description: "Caminar hasta parada de carros", duration: "2 min" },
-        { type: "car", description: "Tomar carro público ruta 'Los Ríos'", duration: "18 min" }
-      ]
-    }
-  ];
-
   const handleSearchRoute = async () => {
-    if (!addressStart.coordinates || !addressEnd.coordinates) {
+    if (!addressStart.address || !addressEnd.address) {
       showToast("Por favor, ingresa ambas direcciones");
       return;
     }
-
     setIsLoading(true);
     try {
-      // Obtener rutas calculadas
-      const routes = await api.calculateRoutes(
-        addressStart.coordinates,
-        addressEnd.coordinates
-      );
+      // Metro L1
+      const metroL1Start = findClosestStation(addressStart.address, METRO_L1);
+      const metroL1End = findClosestStation(addressEnd.address, METRO_L1);
+      const l1StartIdx = METRO_L1.findIndex(s => s.name === metroL1Start.name);
+      const l1EndIdx = METRO_L1.findIndex(s => s.name === metroL1End.name);
+      let l1Path = l1StartIdx <= l1EndIdx ? METRO_L1.slice(l1StartIdx, l1EndIdx + 1) : METRO_L1.slice(l1EndIdx, l1StartIdx + 1).reverse();
+      const l1AvgTime = Math.max(5, l1Path.length * 2);
 
-      // Obtener información en tiempo real para cada ruta
-      const routesWithRealtime = await Promise.all(
-        routes.map(async (route) => {
-          const realtimeData = await api.getRealtimeInfo(route.id);
-          return { ...route, realtime: realtimeData };
-        })
-      );
+      // Metro L2
+      const metroL2Start = findClosestStation(addressStart.address, METRO_L2);
+      const metroL2End = findClosestStation(addressEnd.address, METRO_L2);
+      const l2StartIdx = METRO_L2.findIndex(s => s.name === metroL2Start.name);
+      const l2EndIdx = METRO_L2.findIndex(s => s.name === metroL2End.name);
+      let l2Path = l2StartIdx <= l2EndIdx ? METRO_L2.slice(l2StartIdx, l2EndIdx + 1) : METRO_L2.slice(l2EndIdx, l2StartIdx + 1).reverse();
+      const l2AvgTime = Math.max(5, l2Path.length * 2);
 
-      setAvailableRoutes(routesWithRealtime);
+      // Opciones simuladas con paradas reales
+      const options = [
+        {
+          type: "Metro L1",
+          price: TRANSPORT_PRICES.Metro,
+          avgTime: l1AvgTime,
+          steps: [
+            { instruction: `Camina a la estación más cercana: ${metroL1Start.name} (L1)`, location: metroL1Start.location, duration: 5 },
+            { instruction: `Toma el Metro L1 pasando por:`, location: l1Path.map(s => s.name).join(" → "), duration: Math.max(1, l1AvgTime - 10) },
+            { instruction: `Bájate en: ${metroL1End.name}`, location: metroL1End.location, duration: 5 }
+          ]
+        },
+        {
+          type: "Metro L2",
+          price: TRANSPORT_PRICES.Metro,
+          avgTime: l2AvgTime,
+          steps: [
+            { instruction: `Camina a la estación más cercana: ${metroL2Start.name} (L2)`, location: metroL2Start.location, duration: 5 },
+            { instruction: `Toma el Metro L2 pasando por:`, location: l2Path.map(s => s.name).join(" → "), duration: Math.max(1, l2AvgTime - 10) },
+            { instruction: `Bájate en: ${metroL2End.name}`, location: metroL2End.location, duration: 5 }
+          ]
+        }
+      ];
+      setAvailableRoutes(options);
       setShowRouteOptions(true);
-    } catch (error) {
-      console.error('Error searching routes:', error);
-      showToast('Error al buscar rutas disponibles');
     } finally {
       setIsLoading(false);
     }
@@ -525,20 +556,17 @@ const App = () => {
   const handleRouteSelect = async (route) => {
     setSelectedRoute(route);
     try {
-      // Obtener horarios de transporte para la ruta seleccionada
-      const scheduleInfo = await api.getTransportSchedule(
-        route.stationId,
-        route.transportType
-      );
-      
-      // Actualizar la información de la ruta con los horarios
+      // Si quieres mostrar pasos detallados:
+      const directionsRes = await axios.post(`${API_BASE_URL}/directions`, {
+        start: route.start_address || addressStart.address,
+        end: route.end_address || addressEnd.address
+      });
       setSelectedRoute(prev => ({
         ...prev,
-        schedule: scheduleInfo
+        steps: directionsRes.data.steps || []
       }));
     } catch (error) {
-      console.error('Error fetching schedule:', error);
-      showToast('Error al obtener horarios');
+      showToast('No se pudieron cargar los pasos detallados');
     }
   };
 
@@ -727,6 +755,17 @@ const App = () => {
     updateNearbyStations();
   }, [addressStart.coordinates]);
 
+  function findClosestStation(address, stations) {
+    if (!address) return stations[0];
+    const lower = address.toLowerCase();
+    let found = stations.find(s => lower.includes(s.name.toLowerCase()) || lower.includes(s.location.toLowerCase()));
+    if (found) return found;
+    // Busca por palabras clave de sectores
+    let found2 = stations.find(s => lower.includes(s.location.split(',')[0].toLowerCase()));
+    if (found2) return found2;
+    return stations[0];
+  }
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.toastContainer, {
@@ -856,17 +895,32 @@ const App = () => {
           </TouchableOpacity>
           )}
 
-          <TouchableOpacity 
-            style={[styles.searchButton, isLoading && styles.searchButtonDisabled]} 
-            onPress={handleSearchRoute}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.searchButtonText}>Buscar Rutas</Text>
-            )}
-          </TouchableOpacity>
+          {/* Botones Buscar Rutas y Volver en la misma fila */}
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 12 }}>
+            <TouchableOpacity
+              style={[styles.searchButton, { width: 120, backgroundColor: '#f5f5f5', borderColor: '#900020', borderWidth: 1, marginRight: 8, paddingHorizontal: 0 }]} 
+              onPress={() => router.back()}
+              accessibilityLabel="Volver"
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="10" height="18" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.75 16.5L1.25 9L8.75 1.5" stroke="#900020" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <Text style={[styles.searchButtonText, { color: '#900020', marginLeft: 8 }]}>Volver</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.searchButton, isLoading && styles.searchButtonDisabled, { flex: 1 }]} 
+              onPress={handleSearchRoute}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.searchButtonText}>Buscar Rutas</Text>
+              )}
+            </TouchableOpacity>
+          </View>
       </View>
       ) : (
         <View style={styles.routeOptionsContainer}>
@@ -886,64 +940,45 @@ const App = () => {
                 key={index}
                 style={[
                   styles.routeOption,
-                  selectedRoute?.id === route.id && styles.selectedRouteOption
+                  selectedRoute === route && styles.selectedRouteOption
                 ]}
                 onPress={() => handleRouteSelect(route)}
               >
                 <View style={styles.routeOptionContent}>
                   <View style={styles.routeOptionLeft}>
                     <Image
-                      source={getTransportTypeIcon(route.transportType)}
+                      source={getTransportTypeIcon(route.type)}
                       style={styles.transportIcon}
                     />
                     <View style={styles.routeDetails}>
-                      <Text style={styles.routeType}>
-                        {route.transportType}
-                        {route.realtime?.delay && (
-                          <Text style={styles.delayText}>
-                            {' '}• {route.realtime.delay} min retraso
-                          </Text>
-                        )}
-                      </Text>
+                      <Text style={styles.routeType}>{route.type}</Text>
                       <Text style={styles.routeTime}>
-                        {route.duration} • {route.distance}
+                        {route.duration || route.time || '---'} min
                       </Text>
+                      <Text style={styles.routeDetailsText}>{route.details}</Text>
                     </View>
                   </View>
-                  <Text style={styles.routePrice}>DOP {route.price}</Text>
+                  <Text style={styles.routePrice}>
+                    {route.price ? `DOP ${route.price}` : ''}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {selectedRoute && (
+          {selectedRoute && selectedRoute.steps && (
             <View style={styles.routeStepsContainer}>
-              <Text style={styles.routeStepsTitle}>Detalles del Viaje</Text>
-              {selectedRoute.steps.map((step, index) => (
-                <View key={index} style={styles.routeStep}>
-                  <Image
-                    source={getTransportTypeIcon(step.type)}
-                    style={styles.stepIcon}
-                  />
-                  <View style={styles.stepDetails}>
-                    <Text style={styles.stepDescription}>{step.description}</Text>
-                    <Text style={styles.stepDuration}>{step.duration}</Text>
-                    {step.schedule && (
-                      <Text style={styles.scheduleText}>
-                        Próxima salida: {step.schedule.nextDeparture}
-                      </Text>
-                    )}
-                  </View>
+              <Text style={styles.routeStepsTitle}>Pasos del viaje</Text>
+              {selectedRoute.steps.map((step, idx) => (
+                <View key={idx} style={styles.routeStep}>
+                  <Text style={styles.stepDescription}>{step.instruction}</Text>
+                  <Text style={styles.stepDuration}>{step.duration} min</Text>
                 </View>
               ))}
-              
-              <TouchableOpacity 
-                style={styles.saveButton}
-                onPress={handleSaveRoute}
-              >
+              <TouchableOpacity style={styles.saveButton} onPress={handleSaveRoute}>
                 <Text style={styles.saveButtonText}>Guardar Ruta</Text>
-  </TouchableOpacity>
-</View>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       )}
@@ -1168,25 +1203,34 @@ const styles = StyleSheet.create({
     maxHeight: "60%",
   },
   routeOption: {
-    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
     borderRadius: 12,
-    marginBottom: 10,
-    backgroundColor: "#f8f9fa",
+    padding: 18,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#eee",
+    borderColor: '#eee',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   selectedRouteOption: {
-    borderColor: "#900020",
-    backgroundColor: "#fff5f5",
+    borderColor: '#900020',
+    backgroundColor: '#fff5f5',
   },
   routeOptionContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   routeOptionLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   transportIcon: {
     width: 40,
@@ -1198,53 +1242,56 @@ const styles = StyleSheet.create({
   },
   routeType: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 4,
+    color: '#900020',
   },
   routeTime: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
+  },
+  routeDetailsText: {
+    fontSize: 13,
+    color: '#888',
+    marginTop: 2,
   },
   routePrice: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#900020",
+    fontWeight: 'bold',
+    color: '#900020',
   },
   routeStepsContainer: {
     marginTop: 20,
     padding: 15,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: '#f8f9fa',
     borderRadius: 12,
     marginBottom: 15,
   },
   routeStepsTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 15,
+    color: '#900020',
   },
   routeStep: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 12,
     padding: 10, 
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 8,
-  },
-  stepIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-  },
-  stepDetails: {
-    flex: 1,
+    borderWidth: 1,
+    borderColor: '#eee',
   },
   stepDescription: {
     fontSize: 14,
-    marginBottom: 2,
+    color: '#333',
+    flex: 1,
   },
   stepDuration: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
+    marginLeft: 8,
   },
   button: {
     backgroundColor: "#900020",
@@ -1306,5 +1353,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 export default App;
