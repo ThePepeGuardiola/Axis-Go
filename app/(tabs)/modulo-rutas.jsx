@@ -233,15 +233,15 @@ const RouteOption = ({ option, selected, onSelect }) => (
 );
 
 const getTransportTypeIcon = (type) => {
-  switch (type?.toLowerCase()) {
-    case 'metro':
-      return require('../../assets/images/metroo.png');
-    case 'bus':
-      return require('../../assets/images/bus.png');
-    case 'car':
-    default:
+  if (!type) return require('../../assets/images/car.png');
+  const t = type.toLowerCase();
+  if (t.includes('metro') && t.includes('teleférico')) return require('../../assets/images/metroo.png');
+  if (t.includes('metro') && t.includes('omsa')) return require('../../assets/images/metroo.png');
+  if (t.includes('teleférico') && t.includes('omsa')) return require('../../assets/images/tele.png');
+  if (t.includes('metro')) return require('../../assets/images/metroo.png');
+  if (t.includes('omsa')) return require('../../assets/images/bus.png');
+  if (t.includes('teleférico')) return require('../../assets/images/tele.png');
       return require('../../assets/images/car.png');
-  }
 };
 
 // Wrap the map component with error boundary
@@ -287,51 +287,59 @@ const App = () => {
   const [isUsingCurrentLocation, setIsUsingCurrentLocation] = useState(true);
 
   // Nuevos estados para la información de la API
-  const [nearbyStations, setNearbyStations] = useState([]);
   const [transportTypes, setTransportTypes] = useState([]);
   const [availableRoutes, setAvailableRoutes] = useState([]);
   const [realtimeInfo, setRealtimeInfo] = useState(null);
   const [popularRoutes, setPopularRoutes] = useState([]);
 
-  // Metro Línea 1 (Azul)
-  const METRO_L1 = [
-    { name: "Centro de los Héroes", location: "Av Enrique Jiménez Moya, Santo Domingo", line: "L1" },
-    { name: "Francisco Alberto Caamaño", location: "Av. Dr. Bernardo Correa y Cidrón, Santo Domingo", line: "L1" },
-    { name: "Amín Abel", location: "Av. Dr. Bernardo Correa y Cidrón, Santo Domingo", line: "L1" },
-    { name: "Joaquín Balaguer", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
-    { name: "Casandra Damirón", location: "F3CQ+G54 estacion casandra damiron, Santo Domingo", line: "L1" },
-    { name: "Prof. Juan Bosch", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
-    { name: "Juan Pablo Duarte", location: "Av. Máximo Gómez, Santo Domingo", line: "L1", transfer: true },
-    { name: "Peña Battle", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
-    { name: "Pedro L. Cedeño", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
-    { name: "Los Taínos", location: "Av. Máximo Gómez, Santo Domingo", line: "L1" },
-    { name: "Máximo Gómez", location: "Santo Domingo", line: "L1" },
-    { name: "Hermanas Mirabal", location: "Av. Ecológica Prof. Juan Bosch, Santo Domingo", line: "L1" },
-    { name: "José Francisco Peña Gómez", location: "Av. Hermanas Mirabal, Santo Domingo", line: "L1" },
-    { name: "Gregorio Luperón", location: "Santo Domingo", line: "L1" },
-    { name: "Gregorio Urbano Gilbert", location: "Avenida Hermanas Mirabal, Santo Domingo", line: "L1" },
-    { name: "Mamá Tingó", location: "Av. Hermanas Mirabal, Santo Domingo", line: "L1" }
+  // Estaciones principales de Metro (ejemplo real de tu base)
+  const METRO_STATIONS = [
+    { name: "Centro de los Héroes", location: "Av Enrique Jiménez Moya, Santo Domingo" },
+    { name: "Francisco Alberto Caamaño", location: "Av. Dr. Bernardo Correa y Cidrón, Santo Domingo" },
+    { name: "Amín Abel", location: "Av. Dr. Bernardo Correa y Cidrón, Santo Domingo" },
+    { name: "Joaquín Balaguer", location: "Av. Máximo Gómez, Santo Domingo" },
+    { name: "Casandra Damirón", location: "F3CQ+G54 estacion casandra damiron, Santo Domingo" },
+    { name: "Prof. Juan Bosch", location: "Av. Máximo Gómez, Santo Domingo" },
+    { name: "Juan Pablo Duarte", location: "Av. Máximo Gómez, Santo Domingo" },
+    { name: "Peña Battle", location: "Av. Máximo Gómez, Santo Domingo" },
+    { name: "Pedro L. Cedeño", location: "Av. Máximo Gómez, Santo Domingo" },
+    { name: "Los Taínos", location: "Av. Máximo Gómez, Santo Domingo" },
+    { name: "Máximo Gómez", location: "Santo Domingo" },
+    { name: "Hermanas Mirabal", location: "Av. Ecológica Prof. Juan Bosch, Santo Domingo" },
+    { name: "José Francisco Peña Gómez", location: "Av. Hermanas Mirabal, Santo Domingo" },
+    { name: "Gregorio Luperón", location: "Santo Domingo" },
+    { name: "Gregorio Urbano Gilbert", location: "Avenida Hermanas Mirabal, Santo Domingo" },
+    { name: "Mamá Tingó", location: "Av. Hermanas Mirabal, Santo Domingo" }
   ];
 
-  // Metro Línea 2 (Roja)
-  const METRO_L2 = [
-    { name: "María Montez", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Pedro Francisco Bonó", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Francisco Gregorio Billini", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Ulises Francisco Espaillat", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Pedro Mir", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Freddy Beras Goico", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Juan Ulises García Saleta", location: "Avenida John F. Kennedy, Santo Domingo", line: "L2" },
-    { name: "Juan Pablo Duarte", location: "Av. Máximo Gómez, Santo Domingo", line: "L2", transfer: true },
-    { name: "Coronel Rafael Fernandez Dominguez", location: "Expreso V Centenario, Santo Domingo", line: "L2" },
-    { name: "Mauricio Baez", location: "Expreso V Centenario, Santo Domingo", line: "L2" },
-    { name: "Ramon Caceres", location: "Av. Juan Pablo Duarte, Santo Domingo", line: "L2" },
-    { name: "Horacio Vasquez", location: "Calle Josefa Brea, Santo Domingo", line: "L2" },
-    { name: "Manuel de JS. Galvan", location: "Av. Padre Castellanos, Santo Domingo", line: "L2" },
-    { name: "Eduardo Brito", location: "Av. Francisco del Rosario Sanchez, Santo Domingo", line: "L2", transfer: true }
+  // Paradas principales de OMSA (usando algunos puntos de tu base de datos)
+  const OMSA_STOPS = [
+    { name: "Terminal de OMSA", location: "Av. Jacobo Majluta" },
+    { name: "Antiguo Control OMSA", location: "Av. Jacobo Majluta" },
+    { name: "Después Av. Hermanas Mirabal (Frente Hiper Olé)", location: "Av. Jacobo Majluta" },
+    { name: "Frente Templo MITA", location: "Av. Jacobo Majluta" },
+    { name: "Frente Planta Marañón Colgate & Palmolive", location: "Av. Jacobo Majluta" },
+    { name: "Frente entrada Brisas de los Palmares esq. C/22", location: "Av. Jacobo Majluta" },
+    { name: "Después C/ Peatón Manuel de Js. Galván (Debajo Puente Peatonal)", location: "Av. Jacobo Majluta" },
+    { name: "Después Carretera La Victoria, Cruce Sabana Perdida", location: "Av. Prol. Av. Charles de Gaulle" },
+    { name: "Antes del Puente Rio Ozama", location: "Av. Prol. Av. Charles de Gaulle" },
+    { name: "Frente Multicentro La Sirena", location: "Av. Prol. Av. Charles de Gaulle" },
+    { name: "Después Carretera Mella y Antes C/ Marcos Rojas (Frente a Shoes)", location: "Av. Charles de Gaulle" },
+    { name: "Antes Av. Simón Orozco (Frente Presidente Sport)", location: "Av. Charles de Gaulle" },
+    { name: "Después Av. Simón Orozco (Al lado Payano Sandwich)", location: "Av. Charles de Gaulle" },
+    { name: "Antes Cruce Carretera Medoza (Frente SermerCarro)", location: "Av. Charles de Gaulle" },
+    { name: "Después Carretera Mendoza (Frente GIMAM)", location: "Av. Charles de Gaulle" },
+    { name: "Antes Cruce Autopista San Isidro (Frente Cervecería Nacional Dominicana)", location: "Av. Charles de Gaulle" },
+    { name: "Después Cruce Autopista San Isidro (Frente Pescadería Restaurant Segura)", location: "Av. Charles de Gaulle" },
+    { name: "Antes Av. Ecológica, después entrada de Franconia", location: "Av. Charles de Gaulle" },
+    { name: "Debajo del Puente Juan Carlos", location: "Aut. Las Américas" },
+    { name: "Frente Alcantara Carga Express", location: "Aut. Las Américas" },
+    { name: "Antes de entrada a Av. del Hipódromo V Centenario", location: "Aut. Las Américas" },
+    { name: "Av. Entrada al Hipódromo", location: "Av. Entrada al Hipódromo V Centenario" },
+    { name: "Terminal de OMSA (final)", location: "Av. Entrada al Hipódromo V Centenario" }
   ];
 
-  // Teleférico
+  // Estaciones principales de Teleférico (ejemplo real de tu base)
   const TELEFERICO_STATIONS = [
     { name: "Gualey (T1)", location: "G438+WJ4, Av. Padre Castellanos, Santo Domingo" },
     { name: "Tres Brazos (T2)", location: "Av. Pdte. Hugo Chávez 29, Santo Domingo Este" },
@@ -341,7 +349,8 @@ const App = () => {
 
   const TRANSPORT_PRICES = {
     Metro: 20,
-    OMSA: 15
+    OMSA: 15,
+    Teleferico: 20
   };
 
   const requestLocationPermission = async () => {
@@ -500,6 +509,14 @@ const App = () => {
     }
   };
 
+  function findClosestStation(address, stations) {
+    if (!address) return stations[0];
+    const lower = address.toLowerCase();
+    let found = stations.find(s => lower.includes(s.name.toLowerCase()) || lower.includes(s.location.toLowerCase()));
+    if (found) return found;
+    return stations[0];
+  }
+
   const handleSearchRoute = async () => {
     if (!addressStart.address || !addressEnd.address) {
       showToast("Por favor, ingresa ambas direcciones");
@@ -507,44 +524,151 @@ const App = () => {
     }
     setIsLoading(true);
     try {
-      // Metro L1
-      const metroL1Start = findClosestStation(addressStart.address, METRO_L1);
-      const metroL1End = findClosestStation(addressEnd.address, METRO_L1);
-      const l1StartIdx = METRO_L1.findIndex(s => s.name === metroL1Start.name);
-      const l1EndIdx = METRO_L1.findIndex(s => s.name === metroL1End.name);
-      let l1Path = l1StartIdx <= l1EndIdx ? METRO_L1.slice(l1StartIdx, l1EndIdx + 1) : METRO_L1.slice(l1EndIdx, l1StartIdx + 1).reverse();
-      const l1AvgTime = Math.max(5, l1Path.length * 2);
+      // Metro
+      const metroStart = findClosestStation(addressStart.address, METRO_STATIONS);
+      const metroEnd = findClosestStation(addressEnd.address, METRO_STATIONS);
+      const metroStartIdx = METRO_STATIONS.findIndex(s => s.name === metroStart.name);
+      const metroEndIdx = METRO_STATIONS.findIndex(s => s.name === metroEnd.name);
+      let metroPath = metroStartIdx <= metroEndIdx
+        ? METRO_STATIONS.slice(metroStartIdx, metroEndIdx + 1)
+        : METRO_STATIONS.slice(metroEndIdx, metroStartIdx + 1).reverse();
+      const metroAvgTime = Math.max(5, metroPath.length * 2);
 
-      // Metro L2
-      const metroL2Start = findClosestStation(addressStart.address, METRO_L2);
-      const metroL2End = findClosestStation(addressEnd.address, METRO_L2);
-      const l2StartIdx = METRO_L2.findIndex(s => s.name === metroL2Start.name);
-      const l2EndIdx = METRO_L2.findIndex(s => s.name === metroL2End.name);
-      let l2Path = l2StartIdx <= l2EndIdx ? METRO_L2.slice(l2StartIdx, l2EndIdx + 1) : METRO_L2.slice(l2EndIdx, l2StartIdx + 1).reverse();
-      const l2AvgTime = Math.max(5, l2Path.length * 2);
+      // OMSA
+      const omsaStart = findClosestStation(addressStart.address, OMSA_STOPS);
+      const omsaEnd = findClosestStation(addressEnd.address, OMSA_STOPS);
+      const omsaStartIdx = OMSA_STOPS.findIndex(s => s.name === omsaStart.name);
+      const omsaEndIdx = OMSA_STOPS.findIndex(s => s.name === omsaEnd.name);
+      let omsaPath = omsaStartIdx <= omsaEndIdx
+        ? OMSA_STOPS.slice(omsaStartIdx, omsaEndIdx + 1)
+        : OMSA_STOPS.slice(omsaEndIdx, omsaStartIdx + 1).reverse();
+      const omsaAvgTime = Math.max(8, omsaPath.length * 3);
 
-      // Opciones simuladas con paradas reales
+      // Teleférico
+      const telefericoStart = findClosestStation(addressStart.address, TELEFERICO_STATIONS);
+      const telefericoEnd = findClosestStation(addressEnd.address, TELEFERICO_STATIONS);
+      const telefericoStartIdx = TELEFERICO_STATIONS.findIndex(s => s.name === telefericoStart.name);
+      const telefericoEndIdx = TELEFERICO_STATIONS.findIndex(s => s.name === telefericoEnd.name);
+      let telefericoPath = telefericoStartIdx <= telefericoEndIdx
+        ? TELEFERICO_STATIONS.slice(telefericoStartIdx, telefericoEndIdx + 1)
+        : TELEFERICO_STATIONS.slice(telefericoEndIdx, telefericoStartIdx + 1).reverse();
+      const telefericoAvgTime = Math.max(6, telefericoPath.length * 4);
+
+      // Combinaciones
+      const combinations = [];
+
+      // Metro + Teleférico (si el destino está cerca de una estación de Teleférico y hay conexión en Eduardo Brito/Gualey)
+      const metroToEduardoBritoIdx = METRO_STATIONS.findIndex(s => s.name === 'Eduardo Brito');
+      const telefericoFromGualeyIdx = TELEFERICO_STATIONS.findIndex(s => s.name === 'Gualey (T1)');
+      if (metroToEduardoBritoIdx !== -1 && telefericoFromGualeyIdx !== -1) {
+        // Trayecto Metro hasta Eduardo Brito
+        let metroComboPath = metroStartIdx <= metroToEduardoBritoIdx
+          ? METRO_STATIONS.slice(metroStartIdx, metroToEduardoBritoIdx + 1)
+          : METRO_STATIONS.slice(metroToEduardoBritoIdx, metroStartIdx + 1).reverse();
+        // Trayecto Teleférico desde Gualey hasta destino
+        let telefericoComboPath = telefericoFromGualeyIdx <= telefericoEndIdx
+          ? TELEFERICO_STATIONS.slice(telefericoFromGualeyIdx, telefericoEndIdx + 1)
+          : TELEFERICO_STATIONS.slice(telefericoEndIdx, telefericoFromGualeyIdx + 1).reverse();
+        const comboAvgTime = Math.max(10, metroComboPath.length * 2 + telefericoComboPath.length * 4 + 10);
+        combinations.push({
+          type: 'Metro + Teleférico',
+          price: TRANSPORT_PRICES.Metro + TRANSPORT_PRICES.Teleferico,
+          avgTime: comboAvgTime,
+          steps: [
+            { instruction: `Camina a la estación/parada más cercana: ${metroStart.name}`, location: metroStart.location, duration: 5 },
+            ...(metroComboPath.length > 1 ? [
+              { instruction: `Toma el Metro/OMSA/Teleférico pasando por:`, location: metroComboPath.map(s => s.name).join(" → "), duration: Math.max(1, metroComboPath.length * 2) }
+            ] : []),
+            { instruction: `Bájate en: ${telefericoEnd.name}`, location: telefericoEnd.location, duration: 5 }
+          ]
+        });
+      }
+
+      // Metro + OMSA (si el destino está lejos de una estación de Metro)
+      if (metroEndIdx !== -1 && omsaEndIdx !== -1 && Math.abs(metroEndIdx - metroStartIdx) > 2) {
+        let metroComboPath = metroStartIdx <= metroEndIdx
+          ? METRO_STATIONS.slice(metroStartIdx, metroEndIdx + 1)
+          : METRO_STATIONS.slice(metroEndIdx, metroStartIdx + 1).reverse();
+        let omsaComboPath = omsaStartIdx <= omsaEndIdx
+          ? OMSA_STOPS.slice(omsaStartIdx, omsaEndIdx + 1)
+          : OMSA_STOPS.slice(omsaEndIdx, omsaStartIdx + 1).reverse();
+        const comboAvgTime = Math.max(15, metroComboPath.length * 2 + omsaComboPath.length * 3 + 10);
+        combinations.push({
+          type: 'Metro + OMSA',
+          price: TRANSPORT_PRICES.Metro + TRANSPORT_PRICES.OMSA,
+          avgTime: comboAvgTime,
+          steps: [
+            { instruction: `Camina a la estación/parada más cercana: ${metroStart.name}`, location: metroStart.location, duration: 5 },
+            ...(metroComboPath.length > 1 ? [
+              { instruction: `Toma el Metro/OMSA/Teleférico pasando por:`, location: metroComboPath.map(s => s.name).join(" → "), duration: Math.max(1, metroComboPath.length * 2) }
+            ] : []),
+            { instruction: `Bájate en: ${omsaEnd.name}`, location: omsaEnd.location, duration: 5 }
+          ]
+        });
+      }
+
+      // Teleférico + OMSA (si el destino está lejos de una estación de Teleférico)
+      if (telefericoEndIdx !== -1 && omsaEndIdx !== -1 && Math.abs(telefericoEndIdx - telefericoStartIdx) > 1) {
+        let telefericoComboPath = telefericoStartIdx <= telefericoEndIdx
+          ? TELEFERICO_STATIONS.slice(telefericoStartIdx, telefericoEndIdx + 1)
+          : TELEFERICO_STATIONS.slice(telefericoEndIdx, telefericoStartIdx + 1).reverse();
+        let omsaComboPath = omsaStartIdx <= omsaEndIdx
+          ? OMSA_STOPS.slice(omsaStartIdx, omsaEndIdx + 1)
+          : OMSA_STOPS.slice(omsaEndIdx, omsaStartIdx + 1).reverse();
+        const comboAvgTime = Math.max(15, telefericoComboPath.length * 4 + omsaComboPath.length * 3 + 10);
+        combinations.push({
+          type: 'Teleférico + OMSA',
+          price: TRANSPORT_PRICES.Teleferico + TRANSPORT_PRICES.OMSA,
+          avgTime: comboAvgTime,
+          steps: [
+            { instruction: `Camina a la estación/parada más cercana: ${telefericoStart.name}`, location: telefericoStart.location, duration: 5 },
+            ...(telefericoComboPath.length > 1 ? [
+              { instruction: `Toma el Teleférico/OMSA pasando por:`, location: telefericoComboPath.map(s => s.name).join(" → "), duration: Math.max(1, telefericoComboPath.length * 4) }
+            ] : []),
+            { instruction: `Bájate en: ${omsaEnd.name}`, location: omsaEnd.location, duration: 5 }
+          ]
+        });
+      }
+
+      // Opciones individuales
       const options = [
         {
-          type: "Metro L1",
+          type: "Metro",
           price: TRANSPORT_PRICES.Metro,
-          avgTime: l1AvgTime,
-          steps: [
-            { instruction: `Camina a la estación más cercana: ${metroL1Start.name} (L1)`, location: metroL1Start.location, duration: 5 },
-            { instruction: `Toma el Metro L1 pasando por:`, location: l1Path.map(s => s.name).join(" → "), duration: Math.max(1, l1AvgTime - 10) },
-            { instruction: `Bájate en: ${metroL1End.name}`, location: metroL1End.location, duration: 5 }
+          avgTime: metroAvgTime,
+      steps: [
+            { instruction: `Camina a la estación/parada más cercana: ${metroStart.name}`, location: metroStart.location, duration: 5 },
+            ...(metroPath.length > 1 ? [
+              { instruction: `Toma el Metro/OMSA/Teleférico pasando por:`, location: metroPath.map(s => s.name).join(" → "), duration: Math.max(1, metroAvgTime - 10) }
+            ] : []),
+            { instruction: `Bájate en: ${metroEnd.name}`, location: metroEnd.location, duration: 5 }
           ]
         },
         {
-          type: "Metro L2",
-          price: TRANSPORT_PRICES.Metro,
-          avgTime: l2AvgTime,
-          steps: [
-            { instruction: `Camina a la estación más cercana: ${metroL2Start.name} (L2)`, location: metroL2Start.location, duration: 5 },
-            { instruction: `Toma el Metro L2 pasando por:`, location: l2Path.map(s => s.name).join(" → "), duration: Math.max(1, l2AvgTime - 10) },
-            { instruction: `Bájate en: ${metroL2End.name}`, location: metroL2End.location, duration: 5 }
+          type: "OMSA",
+          price: TRANSPORT_PRICES.OMSA,
+          avgTime: omsaAvgTime,
+      steps: [
+            { instruction: `Camina a la estación/parada más cercana: ${omsaStart.name}`, location: omsaStart.location, duration: 5 },
+            ...(omsaPath.length > 1 ? [
+              { instruction: `Toma la OMSA pasando por:`, location: omsaPath.map(s => s.name).join(" → "), duration: Math.max(1, omsaAvgTime - 10) }
+            ] : []),
+            { instruction: `Bájate en: ${omsaEnd.name}`, location: omsaEnd.location, duration: 5 }
           ]
-        }
+        },
+        {
+          type: "Teleférico",
+          price: TRANSPORT_PRICES.Teleferico,
+          avgTime: telefericoAvgTime,
+      steps: [
+            { instruction: `Camina a la estación/parada más cercana: ${telefericoStart.name}`, location: telefericoStart.location, duration: 5 },
+            ...(telefericoPath.length > 1 ? [
+              { instruction: `Toma el Teleférico/OMSA pasando por:`, location: telefericoPath.map(s => s.name).join(" → "), duration: Math.max(1, telefericoAvgTime - 10) }
+            ] : []),
+            { instruction: `Bájate en: ${telefericoEnd.name}`, location: telefericoEnd.location, duration: 5 }
+          ]
+        },
+        ...combinations
       ];
       setAvailableRoutes(options);
       setShowRouteOptions(true);
@@ -553,21 +677,8 @@ const App = () => {
     }
   };
 
-  const handleRouteSelect = async (route) => {
+  const handleRouteSelect = (route) => {
     setSelectedRoute(route);
-    try {
-      // Si quieres mostrar pasos detallados:
-      const directionsRes = await axios.post(`${API_BASE_URL}/directions`, {
-        start: route.start_address || addressStart.address,
-        end: route.end_address || addressEnd.address
-      });
-      setSelectedRoute(prev => ({
-        ...prev,
-        steps: directionsRes.data.steps || []
-      }));
-    } catch (error) {
-      showToast('No se pudieron cargar los pasos detallados');
-    }
   };
 
   useEffect(() => {
@@ -695,16 +806,14 @@ const App = () => {
 
   const handleSaveRoute = async () => {
     if (!selectedRoute) return;
-
     try {
-      await api.saveRoute({
-        start: addressStart,
-        end: addressEnd,
-        routeDetails: selectedRoute
+      await axios.post(`${API_BASE_URL}/directions`, {
+        startAddress: addressStart.address,
+        endAddress: addressEnd.address,
+        distance: 0 // o el valor que calcules
       });
       showToast('Ruta guardada exitosamente');
     } catch (error) {
-      console.error('Error saving route:', error);
       showToast('Error al guardar la ruta');
     }
   };
@@ -738,33 +847,6 @@ const App = () => {
 
     loadInitialData();
   }, []);
-
-  // Actualizar estaciones cercanas cuando cambia la ubicación
-  useEffect(() => {
-    const updateNearbyStations = async () => {
-      if (addressStart.coordinates) {
-        try {
-          const stations = await api.getNearbyStations(addressStart.coordinates);
-          setNearbyStations(stations);
-    } catch (error) {
-          console.error('Error fetching nearby stations:', error);
-        }
-    }
-  };
-
-    updateNearbyStations();
-  }, [addressStart.coordinates]);
-
-  function findClosestStation(address, stations) {
-    if (!address) return stations[0];
-    const lower = address.toLowerCase();
-    let found = stations.find(s => lower.includes(s.name.toLowerCase()) || lower.includes(s.location.toLowerCase()));
-    if (found) return found;
-    // Busca por palabras clave de sectores
-    let found2 = stations.find(s => lower.includes(s.location.split(',')[0].toLowerCase()));
-    if (found2) return found2;
-    return stations[0];
-  }
 
   return (
     <View style={styles.container}>
@@ -897,7 +979,7 @@ const App = () => {
 
           {/* Botones Buscar Rutas y Volver en la misma fila */}
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 12 }}>
-            <TouchableOpacity
+          <TouchableOpacity 
               style={[styles.searchButton, { width: 120, backgroundColor: '#f5f5f5', borderColor: '#900020', borderWidth: 1, marginRight: 8, paddingHorizontal: 0 }]} 
               onPress={() => router.back()}
               accessibilityLabel="Volver"
@@ -911,15 +993,15 @@ const App = () => {
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.searchButton, isLoading && styles.searchButtonDisabled, { flex: 1 }]} 
-              onPress={handleSearchRoute}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.searchButtonText}>Buscar Rutas</Text>
-              )}
-            </TouchableOpacity>
+            onPress={handleSearchRoute}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.searchButtonText}>Buscar Rutas</Text>
+            )}
+          </TouchableOpacity>
           </View>
       </View>
       ) : (
@@ -952,10 +1034,7 @@ const App = () => {
                     />
                     <View style={styles.routeDetails}>
                       <Text style={styles.routeType}>{route.type}</Text>
-                      <Text style={styles.routeTime}>
-                        {route.duration || route.time || '---'} min
-                      </Text>
-                      <Text style={styles.routeDetailsText}>{route.details}</Text>
+                      <Text style={styles.routeTime}>Aprox. {route.avgTime} min</Text>
                     </View>
                   </View>
                   <Text style={styles.routePrice}>
@@ -977,8 +1056,8 @@ const App = () => {
               ))}
               <TouchableOpacity style={styles.saveButton} onPress={handleSaveRoute}>
                 <Text style={styles.saveButtonText}>Guardar Ruta</Text>
-              </TouchableOpacity>
-            </View>
+  </TouchableOpacity>
+</View>
           )}
         </View>
       )}
