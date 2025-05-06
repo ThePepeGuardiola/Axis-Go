@@ -6,6 +6,7 @@ export const ROUTES = {
     NOTIFICATIONS: '/Auth/notifications' as const,
     PROFILE: '/Auth/PerfilUsuario' as const,
     METPAGO: '/Auth/metPago' as const,
+    TRIPS: '/Auth/Trips' as const,
   },
   PUBLIC: {
     LOGIN: '/Public/login' as const,

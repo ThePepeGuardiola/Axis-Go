@@ -1,3 +1,4 @@
+import { TripsProvider } from "./trips/TripsContext";
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import * as Font from 'expo-font';
@@ -17,6 +18,7 @@ export default function RootLayout() {
   }, []);
 
   return (
+    <TripsProvider>
     <AlertProvider>
       <AuthProvider>
         <AuthGuard>
@@ -29,5 +31,6 @@ export default function RootLayout() {
         </AuthGuard>
       </AuthProvider>
     </AlertProvider>
+    </TripsProvider>
   );
 }

@@ -77,7 +77,7 @@ export const BottomNav = () => {
       )}
       
       <NavButton1 onPress={() => handleNavigation(ROUTES.AUTH.HOME)} iconPath="M2.92542 14.8235L13.3723 4.37659C13.8849 3.86403..." width={29} height={29} />
-      <NavButton2 onPress={() => handleNavigation(ROUTES.AUTH.LIST)} iconPath="M13.6945 4.90534C13.9187 4.36637..." width={29} height={29} />
+      <NavButton2 onPress={() => handleNavigation(ROUTES.AUTH.TRIPS)} iconPath="M13.6945 4.90534C13.9187 4.36637..." width={29} height={29} />
       <TouchableOpacity style={styles.navItem}>
         <View>
           <Image
