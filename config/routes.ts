@@ -7,6 +7,7 @@ export const ROUTES = {
     PROFILE: '/Auth/PerfilUsuario' as const,
     METPAGO: '/Auth/metPago' as const,
     TRIPS: '/Auth/Trips' as const,
+    MODULO_RUTAS: '/Auth/modulo-rutas' as const,
   },
   PUBLIC: {
     LOGIN: '/Public/login' as const,
