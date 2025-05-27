@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Animated, TextInput, ScrollView, Platform, ActivityIndicator } from "react-native";
 import { router } from 'expo-router';
 import axios from 'axios';
 import * as Location from 'expo-location';
+import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
 
 const libraries = ["geometry", "places"];
 
@@ -244,30 +244,34 @@ const getTransportTypeIcon = (type) => {
       return require('../../assets/images/car.png');
 };
 
-// Wrap the map component with error boundary
+// Replace the MapComponent with this new version
 const MapComponent = ({ children, ...props }) => {
-  if (!GOOGLE_MAPS_APIKEY) {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: GOOGLE_MAPS_APIKEY,
+    libraries: libraries
+  });
+
+  if (!isLoaded) {
     return (
       <View style={styles.mapErrorContainer}>
-        <Text style={styles.mapErrorText}>Google Maps API key is missing</Text>
+        <Text style={styles.mapErrorText}>Loading map...</Text>
       </View>
     );
   }
 
   return (
-    <MapView
-      provider={PROVIDER_GOOGLE}
-      style={styles.map}
-      initialRegion={{
-        latitude: 18.4861,
-        longitude: -69.9312,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+    <GoogleMap
+      mapContainerStyle={styles.map}
+      center={{
+        lat: 18.4861,
+        lng: -69.9312
       }}
+      zoom={13}
       {...props}
     >
       {children}
-    </MapView>
+    </GoogleMap>
   );
 };
 
@@ -286,7 +290,7 @@ const App = () => {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const mapRef = useRef();
+  const mapRef = useRef(null);
   const [toast, setToast] = useState({ visible: false, message: '' });
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [isUsingCurrentLocation, setIsUsingCurrentLocation] = useState(true);
@@ -724,19 +728,26 @@ const App = () => {
 
   const handleMapClick = (event) => {
     if (markers.length < 2) {
-      setMarkers([...markers, { lat: event.nativeEvent.coordinate.latitude, lng: event.nativeEvent.coordinate.longitude }]);
+      const newMarker = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng()
+      };
+      setMarkers([...markers, newMarker]);
     }
   };
 
   const handleMarkerDrag = (index, event) => {
     const newMarkers = [...markers];
-    newMarkers[index] = { lat: event.nativeEvent.coordinate.latitude, lng: event.nativeEvent.coordinate.longitude };
+    newMarkers[index] = {
+      lat: event.latLng.lat(),
+      lng: event.latLng.lng()
+    };
     setMarkers(newMarkers);
   };
 
   useEffect(() => {
     const fetchRoute = async () => {
-      if (markers.length === 2 && window?.google) {
+      if (markers.length === 2) {
         try {
           const response = await fetch("http://localhost:5050/api/fetchRoute", {
             method: "POST",
@@ -756,11 +767,11 @@ const App = () => {
             }
             
             const path = routeData.polyline.encodedPolyline;
-            const decodedPath = window.google.maps.geometry.encoding.decodePath(path);
+            const decodedPath = google.maps.geometry.encoding.decodePath(path);
             setRoute(decodedPath);
             
             if (mapRef.current) {
-              const bounds = new window.google.maps.LatLngBounds();
+              const bounds = new google.maps.LatLngBounds();
               decodedPath.forEach((point) => bounds.extend(point));
               mapRef.current.fitBounds(bounds);
             }
@@ -782,7 +793,7 @@ const App = () => {
     }
 
     try {
-      const geocoder = new window.google.maps.Geocoder();
+      const geocoder = new google.maps.Geocoder();
       const response = await geocoder.geocode({ 
         address,
         componentRestrictions: {
@@ -864,6 +875,10 @@ const App = () => {
     loadInitialData();
   }, []);
 
+  const onMapLoad = (map) => {
+    mapRef.current = map;
+  };
+
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.toastContainer, {
@@ -880,14 +895,19 @@ const App = () => {
 
       <View style={styles.mapWrapper}>
         <MapComponent
-          onPress={handleMapClick}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
+          onLoad={onMapLoad}
+          onClick={handleMapClick}
+          options={{
+            mapTypeControl: true,
+            streetViewControl: true,
+            fullscreenControl: true,
+            zoomControl: true
+          }}
         >
           {markers.map((marker, index) => (
             <Marker
               key={index}
-              coordinate={marker}
+              position={marker}
               draggable={true}
               onDragEnd={(e) => handleMarkerDrag(index, e)}
               title={index === 0 ? 'Inicio' : index === markers.length - 1 ? 'Fin' : ''}
@@ -895,9 +915,13 @@ const App = () => {
           ))}
           {route.length > 0 && (
             <Polyline
-              coordinates={route}
-              strokeColor="#900020"
-              strokeWidth={3}
+              path={route}
+              options={{
+                strokeColor: '#900020',
+                strokeOpacity: 1,
+                strokeWeight: 3,
+                geodesic: true
+              }}
             />
           )}
         </MapComponent>
@@ -1433,7 +1457,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   map: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
 });
 export default App;
